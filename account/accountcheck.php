@@ -12,10 +12,11 @@
  */
 
 require_once "../../../../globals.php";
-require_once "../controller/AppDispatch.php";
-require_once "../controller/Database.php";
+require_once "../controller/Container.php";
+
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Modules\LifeMesh\Container;
 
 
 if (!empty($_POST)) {
@@ -27,15 +28,18 @@ if (!empty($_POST)) {
 $username = $_POST['username'];
 $password = $_POST['password'];
 
-$checkaccount = new OpenEMR\Modules\LifeMesh\AppDispatch();
-$accountisvalid = $checkaccount->accountcheck($username, $password);
+$getcontainer = new Container();
+$checkaccount = $getcontainer->getAppDispatch();
+$url = 'accountCheck';
+$accountisvalid = $checkaccount->apiRequest($username, $password, $url);
 
-//check if DB table exist and create it if it does not exist.
-$doestableexist = new OpenEMR\Modules\LifeMesh\Database();
-$res = $doestableexist->doesTableExist();
-if(!$res) {
-    echo "Table needs to be installed.";
+if ($accountisvalid) {
+    $savecredentials = $getcontainer->getDatabase();
+    $savecredentials->saveUserInformation($username, $password);
 }
+
+header('Location: accountsummary.php');
+
 
 
 
