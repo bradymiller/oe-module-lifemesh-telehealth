@@ -12,44 +12,79 @@
 
 namespace OpenEMR\Modules\LifeMesh;
 
-use OpenEMR\Common\Crypto\CryptoGen;
-use OpenEMR\Common\Http\oeHttp;
-use OpenEMR\Common\Http\oeHttpRequest;
+//require_once "../../../globals.php";
 
 
+/**
+ * Class AppDispatch
+ * @package OpenEMR\Modules\LifeMesh
+ */
 class AppDispatch
 {
+    public $accountCheck;
+    public $accountSummary;
+    public $createSession;
+
+    /**
+     * AppDispatch constructor.
+     */
     public function __construct()
     {
-        //do epic stuff here!!
     }
 
-    public function accountcheck($username, $password)
+    /**
+     * @param $username
+     * @param $password
+     * @param $url
+     * @return string
+     */
+    public function apiRequest($username, $password, $url)
     {
-        $curl = curl_init();
         $data = base64_encode($username . ':' . $password);
-        curl_setopt($curl, CURLOPT_URL, 'https://huzz90crca.execute-api.us-east-1.amazonaws.com/account_check');
-        curl_setopt($curl, CURLOPT_POST, 1);
+        $curl = curl_init();
+        curl_setopt($curl, CURLOPT_URL, $this->setUrl($url)); //dynamically set the url for the api request
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($curl, CURLOPT_MAXREDIRS, 10);
         curl_setopt($curl, CURLOPT_ENCODING, '');
         curl_setopt($curl, CURLOPT_TIMEOUT, 0);
-        curl_setopt($curl, CURLOPT_HTTP_VERSION, 10);
+        curl_setopt($curl, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_1_1);
         curl_setopt($curl, CURLOPT_FOLLOWLOCATION, true);
-        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($curl, CURLOPT_CUSTOMREQUEST, 'POST');
         curl_setopt($curl, CURLOPT_HTTPHEADER, ['Authorization: Basic ' . $data]);
-
+        $status = curl_getinfo($curl, CURLINFO_RESPONSE_CODE);
         $response = curl_exec($curl);
 
         curl_close($curl);
 
-        if ($response == '"Your credentials are valid and an active subscription is found for this account."') {
-            //$db = new Database();
-            return "Yes ";
-        } else {
-            die(" An Error occured. Username or Password is incorrect. Please contact Lifemesh ");
+        if ($url == 'accountCheck') {
+            if ($status === 0) {
+                return true;
+            } else {
+                echo $status;
+                die(" An Error occured. Username or Password is incorrect. Please contact Lifemesh ");
+            }
+        }
+        if ($url == 'accountSummary') {
+            return $response;
         }
     }
 
+    /**
+     * @param $value
+     * @return string|null
+     * set URL values based on the call to action
+     */
+    private function setUrl($value)
+    {
+        switch ($value) {
+            case "accountCheck":
+                return 'https://huzz90crca.execute-api.us-east-1.amazonaws.com/account_check';
 
+            case "accountSummary":
+                return 'https://huzz90crca.execute-api.us-east-1.amazonaws.com/account_summary';
+
+            default:
+                return NULL;
+        }
+    }
 }

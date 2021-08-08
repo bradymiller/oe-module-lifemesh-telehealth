@@ -14,7 +14,6 @@
 require_once "../../../../globals.php";
 require_once "../controller/Container.php";
 
-
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Modules\LifeMesh\Container;
 

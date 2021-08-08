@@ -1,6 +1,6 @@
 <?php
-
 /*
+ *
  * @package      OpenEMR
  * @link               https://www.open-emr.org
  *
@@ -12,5 +12,15 @@
 
 namespace OpenEMR\Modules\LifeMesh;
 
-$module_config = 1;
-require_once('setup.php');
+class AppListener
+{
+    private $callApi;
+
+    public $createSession;
+
+    public function __construct()
+    {
+        $this->callApi = new Container();
+    }
+
+}

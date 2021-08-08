@@ -11,7 +11,7 @@ abstract class ApiErrorException extends \Exception implements ExceptionInterfac
     protected $httpBody;
     protected $httpHeaders;
     protected $httpStatus;
-    protected $jsonBody;
+    public $jsonBody;
     protected $requestId;
     protected $stripeCode;
 

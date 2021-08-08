@@ -1,6 +1,6 @@
 <?php
-
 /*
+ *
  * @package      OpenEMR
  * @link               https://www.open-emr.org
  *
@@ -10,7 +10,12 @@
  *
  */
 
-namespace OpenEMR\Modules\LifeMesh;
+use OpenEMR\Modules\LifeMesh\Database;
 
-$module_config = 1;
-require_once('setup.php');
+require_once "../controller/Container.php";
+
+$deleteaccountinformation = new Database();
+
+echo $deleteaccountinformation->removeAccountInfo();
+
+

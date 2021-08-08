@@ -18,6 +18,9 @@ use OpenEMR\Modules\LifeMesh\Container;
 use OpenEMR\Core\Header;
 
 $getcredentals = sqlQuery("select username, password from lifemesh_account");
+if ($getcredentals['username'] == '') {
+    die('You are not logged in');
+}
 $getaccountsummary = new Container();
 $password = $getaccountsummary->getDatabase();
 $pass = $password->cryptoGen->decryptStandard($getcredentals['password']);
@@ -43,27 +46,86 @@ $data = $summaryurl->apiRequest($getcredentals['username'], $pass, $url);
     <?php
         $j_data = json_decode($data, true);
     ?>
-    <table class="table">
-        <tr>
-            <th><?php echo xlt('Subscription Start')?></th>
-            <th><?php echo xlt('Billing Period Start')?></th>
-            <th><?php echo xlt('Billing Period Ended')?></th>
-            <th><?php echo xlt('Ended At')?></th>
-            <th><?php echo xlt('Status')?></th>
-            <th><?php echo xlt('Session Count')?></th>
-        </tr>
-        <tr>
-            <td><?php print $j_data['subscription_start']; ?></td>
-            <td><?php print $j_data['billing_period_start']; ?></td>
-            <td><?php print $j_data['billing_period_end']; ?></td>
-            <td><?php print $j_data['ended_at']; ?></td>
-            <td><?php print $j_data['status']; ?></td>
-            <td><?php print $j_data['session_count']; ?></td>
-        </tr>
-    </table>
-
+    <div id="summary">
+        <p><strong>Account</strong><br>
+        <?php echo $getcredentals['username']?></p>
+        <p></p>
+        <p></p>
+        <p><strong>Billed Telehealth Sessions this Billing Cycle</strong><br>
+        <?php print $j_data['session_count']; ?></p>
+        <p></p>
+        <p><strong>Billing Cycle Ends</strong><br>
+        <?php print gmdate("Y-m-d TH:i:s\Z", $j_data['billing_period_end']); ?></p>
+    </div>
+    <div id="plans">
+        <p><strong>Telehealth Pricing Tiers</strong><br>
+        First 100 Telehealth Sessions costs $99.00<br>
+        Next 101 - 200 costs $119.00<br>
+        Next 201 - 300 costs $159.00<br>
+        Next 301 - 500 costs $279.00<br>
+        Next 501 - 750 costs $249.00<br>
+        Next 751 sessions and beyond costs $0.75/session</p>
+    </div>
+    <div id="acctmgr">
+        <p></p>
+        <p>Reset account password <button class="btn btn-primary" onclick="resetPassword()">Click Here</button></p>
+        <p>Do you want to cancel your subscription? <button class="btn btn-primary" onclick="cancelSubscription()">Click Here</button></p>
+    </div>
 </div>
 </body>
+<script type="application/javascript">
+    function createAuthorization() {
+        var username = "<?php echo $getcredentals['username']; ?>";
+        var password = "<?php echo $pass; ?>";
+        var auth = btoa(username:password);
+        return auth;
+    }
+    function cancelSubscription() {
+
+        var myHeaders = new Headers();
+        myHeaders.append("Authorization", "Basic " + createAuthorization());
+
+        var raw = "";
+
+        var requestOptions = {
+            method: 'POST',
+            headers: myHeaders,
+            body: raw,
+            redirect: 'follow'
+        };
+
+        fetch("https://huzz90crca.execute-api.us-east-1.amazonaws.com/cancel_subscription", requestOptions)
+            .then(response => response.text())
+            .then(result => console.log(result))
+            .catch(error => console.log('error', error));
+        alert(result);
+    }
+
+    function resetPassword() {
+        var myHeaders = new Headers();
+        myHeaders.append("Authorization", "Basic " + createAuthorization());
+
+        var raw = "";
+
+        var requestOptions = {
+            method: 'POST',
+            headers: myHeaders,
+            body: raw,
+            redirect: 'follow'
+        };
+
+        fetch("https://huzz90crca.execute-api.us-east-1.amazonaws.com/reset_password", requestOptions)
+            .then(response => response.text())
+            .then(result => console.log(result))
+            .catch(error => console.log('error', error));
+
+        fetch("wipeaccount.php")
+            .then(response => response.text())
+            .then(result => console.log(result))
+            .catch(error => console.log('error', error));
+        alert('Close account page and check your email for new password');
+    }
+</script>
 </html>
 
 
