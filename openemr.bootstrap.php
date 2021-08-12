@@ -12,10 +12,16 @@
  */
 namespace OpenEMR\Modules\LifeMesh;
 
-use OpenEMR\Events\Globals\GlobalsInitializedEvent;
 use OpenEMR\Menu\MenuEvent;
-use OpenEMR\Services\Globals\GlobalSetting;
 use Symfony\Component\EventDispatcher\Event;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
+require_once "controller/AppointmentSubscriber.php";
 
+/**
+ * @var EventDispatcherInterface $eventDispatcher
+ * register subscriber to the appointment event
+ */
+
+$subscriber = new AppointmentSubscriber();
+$eventDispatcher->addSubscriber($subscriber);
