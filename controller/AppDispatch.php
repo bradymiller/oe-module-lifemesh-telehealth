@@ -69,6 +69,31 @@ class AppDispatch
         }
     }
 
+    public function apiRequestSession($username, $password, $url)
+    {
+        $data = base64_encode($username . ':' . $password);
+        $curl = curl_init();
+        curl_setopt($curl, CURLOPT_URL, $this->setUrl($url)); //dynamically set the url for the api request
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($curl, CURLOPT_MAXREDIRS, 10);
+        curl_setopt($curl, CURLOPT_ENCODING, '');
+        curl_setopt($curl, CURLOPT_TIMEOUT, 0);
+        curl_setopt($curl, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_1_1);
+        curl_setopt($curl, CURLOPT_FOLLOWLOCATION, true);
+        curl_setopt($curl, CURLOPT_CUSTOMREQUEST, 'POST');
+        curl_setopt($curl, CURLOPT_HTTPHEADER, ['Authorization: Basic ' . $data]);
+        $status = curl_getinfo($curl, CURLINFO_RESPONSE_CODE);
+        $response = curl_exec($curl);
+
+        curl_close($curl);
+
+        if ($status === 0) {
+            return $response;
+        } else {
+            echo $status;
+            die(" An Error occured. Username or Password is incorrect. Please contact Lifemesh ");
+        }
+    }
     /**
      * @param $value
      * @return string|null
@@ -82,6 +107,9 @@ class AppDispatch
 
             case "accountSummary":
                 return 'https://huzz90crca.execute-api.us-east-1.amazonaws.com/account_summary';
+
+            case "createSession":
+                return 'https://huzz90crca.execute-api.us-east-1.amazonaws.com/create_session';
 
             default:
                 return NULL;

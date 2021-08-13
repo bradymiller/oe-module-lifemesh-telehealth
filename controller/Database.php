@@ -85,4 +85,29 @@ DB;
          sqlStatement($sql);
          return "completed";
     }
+
+    public function getCredentials()
+    {
+        $sql = "SELECT username, password FROM lifemesh_account";
+
+    }
+
+    public function getPatientDetails($pid)
+    {
+        $sql = "SELECT email, phone_cell FROM patient_data where pid = ?";
+        $comm = sqlQuery($sql, [$pid]);
+        if ($comm['phone_cell'] == '') {
+            die('Please add cell number to patient chart and save appointment again to create life mesh service token');
+        }
+        if ($comm['email'] == '') {
+            die('Please add email address to patient chart and save appointment again to create life mesh service token');
+        }
+        return $comm;
+    }
+
+    public function getTimeZone()
+    {
+        $programtz = sqlQuery("SELECT gl_value FROM `globals` WHERE `gl_name` = 'gbl_time_zone'");
+        return $programtz['gl_value'];
+    }
 }

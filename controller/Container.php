@@ -26,16 +26,10 @@ class Container
      * @var
      */
     private $database;
-
     /**
      * @var
      */
     private $appdispatch;
-
-    /**
-     * @var
-     */
-    private $applistener;
 
     public function __construct()
     {
@@ -61,13 +55,5 @@ class Container
             $this->appdispatch = new AppDispatch();
         }
         return $this->appdispatch;
-    }
-
-    public function getAppListener()
-    {
-        if ($this->applistener === null) {
-            $this->applistener = new AppListener();
-        }
-        return $this->applistener;
     }
 }
