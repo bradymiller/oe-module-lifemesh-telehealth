@@ -88,8 +88,12 @@ DB;
 
     public function getCredentials()
     {
-        $sql = "SELECT username, password FROM lifemesh_account";
-
+        $returnArray = [];
+        $credentials = sqlQuery("SELECT username, password FROM lifemesh_account");
+        $pass = $this->cryptoGen->decryptStandard($credentials['password']);
+        $returnArray[] = $pass;
+        $returnArray[] = $credentials['username'];
+        return $returnArray;
     }
 
     public function getPatientDetails($pid)

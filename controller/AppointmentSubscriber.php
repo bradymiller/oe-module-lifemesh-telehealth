@@ -23,6 +23,7 @@ class AppointmentSubscriber implements EventSubscriberInterface
     public $callid;
     public $createSession;
     public $countrycode;
+    public $credentials;
     public $eventdatetimeutc;
     public $eventdatetimelocal;
     public $eventid;
@@ -46,6 +47,7 @@ class AppointmentSubscriber implements EventSubscriberInterface
         $db = new Container();
         $this->retrieve = $db->getDatabase();
         $this->timezone = $this->retrieve->getTimeZone();
+        $this->credentials = $this->retrieve->getCredentials();
     }
 
     public function isEventTelehealth(AppoinmentSetEvent $event)
@@ -65,12 +67,22 @@ class AppointmentSubscriber implements EventSubscriberInterface
             $this->eventdatetimeutc = $this->setEventUtcTime($eventdatetime);
           $this->eventdatetimelocal = $this->setEventLocalTime($eventdatetime);
                 $this->patientemail = $comm_data['email'];
-                             $phone = preg_replace('/[\s-]+', '', $comm_data['phone_cell']);
+                             $phone = preg_replace('/[^0-9]/', '', $comm_data['phone_cell']);
                  $this->patientcell = "+" . $GLOBALS['phone_country_code'] . $phone;
 
-            //$creatsession = new AppDispatch();
-            //$creatsession->apiRequestSession('', '', 'createsession');
-            file_put_contents("/var/www/html/errors/event_data.txt", $this->eventdatetimelocal . " " .  print_r($comm_data));
+            $creatsession = new AppDispatch();
+            $creatsession->apiRequestSession($this->credentials[1],
+                $this->credentials[0],
+                'createsession',
+                $this->caller_id,
+                $this->country_code,
+                $this->eventid,
+                $this->patientfirstname,
+                $this->patientlastname,
+                $this->eventdatetimeutc,
+                $this->patientemail,
+                $this->patientcell
+            );
         }
     }
 

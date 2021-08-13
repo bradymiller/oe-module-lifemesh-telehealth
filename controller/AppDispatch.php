@@ -69,29 +69,66 @@ class AppDispatch
         }
     }
 
-    public function apiRequestSession($username, $password, $url)
+    public function apiRequestSession(
+        $username,
+        $password,
+        $url,
+        $callid,
+        $eventid,
+        $eventdatetimeutc,
+        $eventdatetimelocal,
+        $patientfirstname,
+        $patientlastname,
+        $patientemail,
+        $patientcell
+    )
     {
         $data = base64_encode($username . ':' . $password);
+        $header = [
+            'Authorization: Basic ' . $data,
+            'Content-Type: application/json'
+        ];
         $curl = curl_init();
-        curl_setopt($curl, CURLOPT_URL, $this->setUrl($url)); //dynamically set the url for the api request
-        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($curl, CURLOPT_MAXREDIRS, 10);
-        curl_setopt($curl, CURLOPT_ENCODING, '');
-        curl_setopt($curl, CURLOPT_TIMEOUT, 0);
-        curl_setopt($curl, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_1_1);
-        curl_setopt($curl, CURLOPT_FOLLOWLOCATION, true);
-        curl_setopt($curl, CURLOPT_CUSTOMREQUEST, 'POST');
-        curl_setopt($curl, CURLOPT_HTTPHEADER, ['Authorization: Basic ' . $data]);
+        curl_setopt_array($curl, array(
+            CURLOPT_URL => $this->setUrl($url),
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => '',
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 0,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => 'POST',
+            CURLOPT_POSTFIELDS => '{
+                                 "caller_id":"' . $callid . '",
+                            "appointment_id":"' . $eventid . '",
+                      "appointment_datetime":"' . $eventdatetimeutc . '",
+                "appointment_datetime_local":"' . $eventdatetimelocal . '",
+                        "patient_first_name":"' . $patientfirstname . '",
+                         "patient_last_name":"' . $patientlastname . '",
+                             "patient_email":"' . $patientemail . '",
+                       "patient_cell_number":"' . $patientcell . '"
+            }',
+            CURLOPT_HTTPHEADER => $header
+        ));
         $status = curl_getinfo($curl, CURLINFO_RESPONSE_CODE);
         $response = curl_exec($curl);
 
         curl_close($curl);
 
         if ($status === 0) {
-            return $response;
+            file_put_contents("/var/www/html/errors/session.txt", $response ." <-there ".
+                $callid . " " .
+                $eventid . " " .
+                $eventdatetimeutc . " " .
+                $eventdatetimelocal . " " .
+                $patientfirstname . " " .
+                $patientlastname . " " .
+                $patientemail . " " .
+                $patientcell . " " .
+                print_r($header, true)
+            );
         } else {
-            echo $status;
-            die(" An Error occured. Username or Password is incorrect. Please contact Lifemesh ");
+            error_log('Lifemesh create session failed'. $status );
         }
     }
     /**
