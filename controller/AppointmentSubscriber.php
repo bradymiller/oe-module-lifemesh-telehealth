@@ -12,16 +12,27 @@
 
 namespace OpenEMR\Modules\LifeMesh;
 
+use DateTimeZone;
 use OpenEMR\Events\Appointments\AppoinmentSetEvent;
-use OpenEMR\Services\PatientService;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+
+require_once "Container.php";
 
 class AppointmentSubscriber implements EventSubscriberInterface
 {
+    public $callid;
     public $createSession;
+    public $countrycode;
+    public $eventdatetimeutc;
+    public $eventdatetimelocal;
+    public $eventid;
     public $patientfirstname;
     public $patientlastname;
-    public $eventdate;
+    public $patientemail;
+    public $patientcell;
+    private $retrieve;
+    private $timezone;
+
 
     public static function getSubscribedEvents() : array
     {
@@ -30,28 +41,51 @@ class AppointmentSubscriber implements EventSubscriberInterface
         ];
     }
 
+    public function __construct()
+    {
+        $db = new Container();
+        $this->retrieve = $db->getDatabase();
+        $this->timezone = $this->retrieve->getTimeZone();
+    }
+
     public function isEventTelehealth(AppoinmentSetEvent $event)
     {
         $appointmentdata = $event->givenAppointmentData();
-        $event_id = $event->eid;
         if (stristr($appointmentdata['form_title'], 'telehealth')) {
-            $pid = $appointmentdata['form_pid'];
-            $details = $this->getPatientDetails($pid);
-            //$this->patientfirstname = $details['fname'];
-            //$this->patientlastname = $details['lname'];
-            //$this->eventdate = $appointmentdata['form_date'];
+                               $pid = $appointmentdata['form_pid'];
+                         $comm_data = $this->retrieve->getPatientDetails($pid);
+                           $patient = explode(",", $appointmentdata['form_patient']);
+              //populate objects for the call to the create session API
+                   $this->caller_id = $GLOBALS['unique_installation_id'];
+                $this->country_code = $GLOBALS['phone_country_code'];
+                     $this->eventid = $event->eid;
+            $this->patientfirstname = $patient[0];
+             $this->patientlastname = $patient[1];
+                     $eventdatetime = $appointmentdata['selected_date'] . " " . $appointmentdata['form_hour'] . ":" . $appointmentdata['form_minute'] . ":00";
+            $this->eventdatetimeutc = $this->setEventUtcTime($eventdatetime);
+          $this->eventdatetimelocal = $this->setEventLocalTime($eventdatetime);
+                $this->patientemail = $comm_data['email'];
+                             $phone = preg_replace('/[\s-]+', '', $comm_data['phone_cell']);
+                 $this->patientcell = "+" . $GLOBALS['phone_country_code'] . $phone;
+
             //$creatsession = new AppDispatch();
             //$creatsession->apiRequestSession('', '', 'createsession');
-            file_put_contents("/var/www/html/errors/event_eid.txt", $event_id);
+            file_put_contents("/var/www/html/errors/event_data.txt", $this->eventdatetimelocal . " " .  print_r($comm_data));
         }
     }
 
-    public function getPatientDetails($pid)
+    private function setEventUtcTime($eventdatetime)
     {
-        $sql = "SELECT email, phone_cell FROM patient_data";
+        $z = 'UTC';
+        $format = "Y-m-d\TH:i:s\Z";
+        $date = date_create($eventdatetime, new DateTimeZone($this->timezone));
+        $date->setTimezone(new DateTimeZone($z));
+        return $date->format($format);
     }
 
-
-
-
+    private function setEventLocalTime($eventdatetime)
+    {
+        $newDateTime = date_create($eventdatetime, new DateTimeZone($this->timezone));
+        return $newDateTime->format("Y-m-d\TH:i:s");
+    }
 }
