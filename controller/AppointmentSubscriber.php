@@ -20,21 +20,14 @@ require_once "Container.php";
 
 class AppointmentSubscriber implements EventSubscriberInterface
 {
-    public $callid;
-    public $createSession;
-    public $countrycode;
-    public $credentials;
-    public $eventdatetimeutc;
-    public $eventdatetimelocal;
-    public $eventid;
-    public $patientfirstname;
-    public $patientlastname;
-    public $patientemail;
-    public $patientcell;
+    private $credentials;
+    private $patientcell;
     private $retrieve;
     private $timezone;
 
-
+    /**
+     * @return string[]
+     */
     public static function getSubscribedEvents() : array
     {
         return [
@@ -42,6 +35,9 @@ class AppointmentSubscriber implements EventSubscriberInterface
         ];
     }
 
+    /**
+     *
+     */
     public function __construct()
     {
         $db = new Container();
@@ -56,31 +52,22 @@ class AppointmentSubscriber implements EventSubscriberInterface
         if (stristr($appointmentdata['form_title'], 'telehealth')) {
                                $pid = $appointmentdata['form_pid'];
                          $comm_data = $this->retrieve->getPatientDetails($pid);
-                           $patient = explode(",", $appointmentdata['form_patient']);
-              //populate objects for the call to the create session API
-                   $this->caller_id = $GLOBALS['unique_installation_id'];
-                $this->country_code = $GLOBALS['phone_country_code'];
-                     $this->eventid = $event->eid;
-            $this->patientfirstname = $patient[0];
-             $this->patientlastname = $patient[1];
+                           $patient = explode(", ", $appointmentdata['form_patient']);
                      $eventdatetime = $appointmentdata['selected_date'] . " " . $appointmentdata['form_hour'] . ":" . $appointmentdata['form_minute'] . ":00";
-            $this->eventdatetimeutc = $this->setEventUtcTime($eventdatetime);
-          $this->eventdatetimelocal = $this->setEventLocalTime($eventdatetime);
-                $this->patientemail = $comm_data['email'];
                              $phone = preg_replace('/[^0-9]/', '', $comm_data['phone_cell']);
                  $this->patientcell = "+" . $GLOBALS['phone_country_code'] . $phone;
 
             $creatsession = new AppDispatch();
-            $creatsession->apiRequestSession($this->credentials[1],
+            $creatsession->apiRequestSession(
+                $this->credentials[1],
                 $this->credentials[0],
-                'createsession',
-                $this->caller_id,
-                $this->country_code,
-                $this->eventid,
-                $this->patientfirstname,
-                $this->patientlastname,
-                $this->eventdatetimeutc,
-                $this->patientemail,
+                'createSession',
+                $GLOBALS['unique_installation_id'],
+                $event->eid,
+                $this->setEventUtcTime($eventdatetime),
+                $patient[0],
+                $patient[1],
+                $comm_data['email'],
                 $this->patientcell
             );
         }

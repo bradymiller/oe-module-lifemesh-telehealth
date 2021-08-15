@@ -25,6 +25,7 @@ class AppDispatch
     public $accountSummary;
     public $createSession;
 
+
     /**
      * AppDispatch constructor.
      */
@@ -76,7 +77,6 @@ class AppDispatch
         $callid,
         $eventid,
         $eventdatetimeutc,
-        $eventdatetimelocal,
         $patientfirstname,
         $patientlastname,
         $patientemail,
@@ -102,7 +102,6 @@ class AppDispatch
                                  "caller_id":"' . $callid . '",
                             "appointment_id":"' . $eventid . '",
                       "appointment_datetime":"' . $eventdatetimeutc . '",
-                "appointment_datetime_local":"' . $eventdatetimelocal . '",
                         "patient_first_name":"' . $patientfirstname . '",
                          "patient_last_name":"' . $patientlastname . '",
                              "patient_email":"' . $patientemail . '",
@@ -116,15 +115,16 @@ class AppDispatch
         curl_close($curl);
 
         if ($status === 0) {
-            file_put_contents("/var/www/html/errors/session.txt", $response ." <-there ".
-                $callid . " " .
-                $eventid . " " .
-                $eventdatetimeutc . " " .
-                $eventdatetimelocal . " " .
-                $patientfirstname . " " .
-                $patientlastname . " " .
-                $patientemail . " " .
-                $patientcell . " " .
+            file_put_contents("/var/www/html/errors/session.txt", $response ." <-there \r\r".
+                $this->setUrl($url) . " \r\r" .
+                $url . " \r\r" .
+                $callid . " \r\r" .
+                $eventid . " \r\r" .
+                $eventdatetimeutc . " \r\r" .
+                $patientfirstname . " \r\r" .
+                $patientlastname . " \r\r" .
+                $patientemail . " \r\r" .
+                $patientcell . " \r\r" .
                 print_r($header, true)
             );
         } else {
