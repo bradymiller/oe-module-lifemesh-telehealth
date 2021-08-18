@@ -137,6 +137,7 @@ class AppDispatch
                 $provider_code,
                 $provider_uri,
                 $eventdatetimelocal,
+                $eventdatetimelocal,
                 $event_status,
                 $updatedAt
             );

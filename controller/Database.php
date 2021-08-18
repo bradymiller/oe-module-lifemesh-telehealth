@@ -122,6 +122,7 @@ DB;
                                     $provider_code,
                                     $provider_uri,
                                     $event_date,
+                                    $event_time,
                                     $event_status,
                                     $updatedAt)
     {
@@ -132,7 +133,7 @@ DB;
             "provider_code = ?, " .
             "provider_uri = ?, " .
             "event_date = ?, " .
-            "event_time = NOW(), " .
+            "event_time = ?, " .
             "event_status = ?, " .
             "updatedAt = ? ";
 
@@ -143,6 +144,7 @@ DB;
             $provider_code,
             $provider_uri,
             $event_date,
+            $event_time,
             $event_status,
             $updatedAt]);
     }
