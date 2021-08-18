@@ -12,9 +12,7 @@
 
 namespace OpenEMR\Modules\LifeMesh;
 
-//require_once "../../../globals.php";
-
-
+require_once "Container.php";
 /**
  * Class AppDispatch
  * @package OpenEMR\Modules\LifeMesh
@@ -23,7 +21,9 @@ class AppDispatch
 {
     public $accountCheck;
     public $accountSummary;
+    private $db;
     public $createSession;
+    private $store;
 
 
     /**
@@ -31,6 +31,8 @@ class AppDispatch
      */
     public function __construct()
     {
+        $this->db = new Container();
+        $this->store = $this->db->getDatabase();
     }
 
     /**
@@ -77,6 +79,7 @@ class AppDispatch
         $callid,
         $eventid,
         $eventdatetimeutc,
+        $eventdatetimelocal,
         $patientfirstname,
         $patientlastname,
         $patientemail,
@@ -102,6 +105,7 @@ class AppDispatch
                                  "caller_id":"' . $callid . '",
                             "appointment_id":"' . $eventid . '",
                       "appointment_datetime":"' . $eventdatetimeutc . '",
+                "appointment_datetime_local":"' . $eventdatetimelocal . '",
                         "patient_first_name":"' . $patientfirstname . '",
                          "patient_last_name":"' . $patientlastname . '",
                              "patient_email":"' . $patientemail . '",
@@ -115,17 +119,26 @@ class AppDispatch
         curl_close($curl);
 
         if ($status === 0) {
-            file_put_contents("/var/www/html/errors/session.txt", $response ." <-there \r\r".
-                $this->setUrl($url) . " \r\r" .
-                $url . " \r\r" .
-                $callid . " \r\r" .
-                $eventid . " \r\r" .
-                $eventdatetimeutc . " \r\r" .
-                $patientfirstname . " \r\r" .
-                $patientlastname . " \r\r" .
-                $patientemail . " \r\r" .
-                $patientcell . " \r\r" .
-                print_r($header, true)
+            $datatostore = json_decode($response, true);
+
+                         $meetingid = $datatostore['MeetingID'];
+                         $patient_code = $datatostore['PatientCode'];
+                         $patient_uri = $datatostore['PatientURL'];
+                         $provider_code = $datatostore['ProviderCode'];
+                         $provider_uri = $datatostore['ProviderURL'];
+                         $event_status = 'Scheduled';
+                         $updatedAt = date("Y-m-d H:m:i");
+
+            $this->store->saveSessionData(
+                $eventid,
+                $meetingid,
+                $patient_code,
+                $patient_uri,
+                $provider_code,
+                $provider_uri,
+                $eventdatetimelocal,
+                $event_status,
+                $updatedAt
             );
         } else {
             error_log('Lifemesh create session failed'. $status );

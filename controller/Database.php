@@ -114,4 +114,36 @@ DB;
         $programtz = sqlQuery("SELECT gl_value FROM `globals` WHERE `gl_name` = 'gbl_time_zone'");
         return $programtz['gl_value'];
     }
+
+    public function saveSessionData($eventid,
+                                    $meetingid,
+                                    $patient_code,
+                                    $patient_uri,
+                                    $provider_code,
+                                    $provider_uri,
+                                    $event_date,
+                                    $event_status,
+                                    $updatedAt)
+    {
+        $sql = "REPLACE INTO lifemesh_chime_sessions SET pc_eid = ?, " .
+            "meeting_id = ?, " .
+            "patient_code = ?, " .
+            "patient_uri = ?, " .
+            "provider_code = ?, " .
+            "provider_uri = ?, " .
+            "event_date = ?, " .
+            "event_time = NOW(), " .
+            "event_status = ?, " .
+            "updatedAt = ? ";
+
+        sqlStatement($sql, [$eventid,
+            $meetingid,
+            $patient_code,
+            $patient_uri,
+            $provider_code,
+            $provider_uri,
+            $event_date,
+            $event_status,
+            $updatedAt]);
+    }
 }
