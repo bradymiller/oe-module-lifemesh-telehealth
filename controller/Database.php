@@ -59,6 +59,9 @@ DB;
 
     }
 
+    /**
+     * @return string
+     */
     public function doesTableExist()
     {
         $db = $GLOBALS['dbase'];
@@ -71,6 +74,11 @@ DB;
         }
     }
 
+    /**
+     * @param $username
+     * @param $password
+     * @return bool
+     */
     public function saveUserInformation($username, $password)
     {
         $pass = $this->cryptoGen->encryptStandard($password);
@@ -79,6 +87,9 @@ DB;
         return true;
     }
 
+    /**
+     * @return string
+     */
     public function removeAccountInfo()
     {
         $sql = "DELETE FROM lifemesh_account";
@@ -116,6 +127,9 @@ DB;
         return $comm;
     }
 
+    /**
+     * @return mixed
+     */
     public function getTimeZone()
     {
         $programtz = sqlQuery("SELECT gl_value FROM `globals` WHERE `gl_name` = 'gbl_time_zone'");
@@ -179,9 +193,14 @@ DB;
         return $appt;
     }
 
+    /**
+     * @param $eventid
+     * @param $eventdatetime
+     */
     public function updateSession($eventid, $eventdatetime)
     {
         $sql = "update lifemesh_chime_session set event_date = ?, event_time = ?, updateAt = NOW() WHERE pc_eid = ?";
-        sqlStatement($sql, [$eventdatetime, $eventdatetime, $eventid]);
+        $time = explode("T", $eventdatetime);
+        sqlStatement($sql, [$eventdatetime, $time[1], $eventid]);
     }
 }

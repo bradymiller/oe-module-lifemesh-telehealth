@@ -52,12 +52,13 @@ class AppointmentSubscriber implements EventSubscriberInterface
     public function isEventTelehealth(AppoinmentSetEvent $event)
     {
         $appointmentdata = $event->givenAppointmentData();
+
         if (stristr($appointmentdata['form_title'], 'telehealth')) {
 
             $pid = $appointmentdata['form_pid'];
             $comm_data = $this->retrieve->getPatientDetails($pid);
             $patient = explode(", ", $appointmentdata['form_patient']);
-            $eventdatetime = $appointmentdata['selected_date'] . " " . $appointmentdata['form_hour'] . ":" . $appointmentdata['form_minute'] . ":00";
+            $eventdatetime = $appointmentdata['form_date'] . " " . $appointmentdata['form_hour'] . ":" . $appointmentdata['form_minute'] . ":00";
             $hour = $appointmentdata['form_hour'] . ":" . $appointmentdata['form_minute'] . ":00";
             $phone = preg_replace('/[^0-9]/', '', $comm_data['phone_cell']);
             $this->patientcell = "+" . $GLOBALS['phone_country_code'] . $phone;
@@ -80,7 +81,7 @@ class AppointmentSubscriber implements EventSubscriberInterface
                     );
             } elseif($checkExistingAppointment['event_date'] != $appointmentdata['selected_date'] ||
             $checkExistingAppointment['time'] != $hour) {
-                //update lifemesh
+                //update lifemesh if time or date of the appointment has changed
                 $reschedule_session = new AppDispatch();
                 $reschedule_session->rescheduleSession(
                     $this->credentials[1],
@@ -97,7 +98,10 @@ class AppointmentSubscriber implements EventSubscriberInterface
         }
     }
 
-
+    /**
+     * @param $eventdatetime
+     * @return string
+     */
     private function setEventUtcTime($eventdatetime)
     {
         $z = 'UTC';
@@ -107,6 +111,10 @@ class AppointmentSubscriber implements EventSubscriberInterface
         return $date->format($format);
     }
 
+    /**
+     * @param $eventdatetime
+     * @return string
+     */
     private function setEventLocalTime($eventdatetime)
     {
         $newDateTime = date_create($eventdatetime, new DateTimeZone($this->timezone));

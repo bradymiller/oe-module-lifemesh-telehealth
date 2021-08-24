@@ -115,7 +115,7 @@ class AppDispatch
         ));
         $status = curl_getinfo($curl, CURLINFO_RESPONSE_CODE);
         $response = curl_exec($curl);
-
+file_put_contents("/var/www/html/errors/status.txt", 'Status code is ' . $status);
         curl_close($curl);
 
         if ($status === 0) {
@@ -128,7 +128,8 @@ class AppDispatch
                          $provider_uri = $datatostore['ProviderURL'];
                          $event_status = 'Scheduled';
                          $updatedAt = date("Y-m-d H:m:i");
-
+file_put_contents("/var/www/html/errors/timesaved.txt", $eventdatetimelocal);
+            $time = explode("T", $eventdatetimelocal);
             $this->store->saveSessionData(
                 $eventid,
                 $meetingid,
@@ -137,7 +138,7 @@ class AppDispatch
                 $provider_code,
                 $provider_uri,
                 $eventdatetimelocal,
-                $eventdatetimelocal,
+                $time[1],
                 $event_status,
                 $updatedAt
             );
