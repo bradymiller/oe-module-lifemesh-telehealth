@@ -86,6 +86,9 @@ DB;
          return "completed";
     }
 
+    /**
+     * @return array
+     */
     public function getCredentials()
     {
         $returnArray = [];
@@ -96,6 +99,10 @@ DB;
         return $returnArray;
     }
 
+    /**
+     * @param $pid
+     * @return array|false|void|null
+     */
     public function getPatientDetails($pid)
     {
         $sql = "SELECT email, phone_cell FROM patient_data where pid = ?";
@@ -115,6 +122,18 @@ DB;
         return $programtz['gl_value'];
     }
 
+    /**
+     * @param $eventid
+     * @param $meetingid
+     * @param $patient_code
+     * @param $patient_uri
+     * @param $provider_code
+     * @param $provider_uri
+     * @param $event_date
+     * @param $event_time
+     * @param $event_status
+     * @param $updatedAt
+     */
     public function saveSessionData($eventid,
                                     $meetingid,
                                     $patient_code,
@@ -147,5 +166,22 @@ DB;
             $event_time,
             $event_status,
             $updatedAt]);
+    }
+
+    /**
+     * @param $eventid
+     * @return array
+     */
+    public function hasAppointment($eventid)
+    {
+        $sql = "select event_date, event_time from lifemesh_chime_sessions where pc_eid = ?";
+        $appt = sqlQuery($sql, [$eventid]);
+        return $appt;
+    }
+
+    public function updateSession($eventid, $eventdatetime)
+    {
+        $sql = "update lifemesh_chime_session set event_date = ?, event_time = ?, updateAt = NOW() WHERE pc_eid = ?";
+        sqlStatement($sql, [$eventdatetime, $eventdatetime, $eventid]);
     }
 }

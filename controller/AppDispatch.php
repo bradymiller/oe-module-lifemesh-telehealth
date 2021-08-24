@@ -145,6 +145,43 @@ class AppDispatch
             error_log('Lifemesh create session failed'. $status );
         }
     }
+
+    public function rescheduleSession($username, $password, $callerid, $eventdatetime,$eventlocaltime, $eventid, $url)
+    {
+        $data = base64_encode($username . ':' . $password);
+        $header = [
+            'Authorization: Basic ' . $data,
+            'Content-Type: application/json'
+        ];
+        $curl = curl_init();
+
+        curl_setopt_array($curl, array(
+            CURLOPT_URL => $this->setUrl($url),
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => '',
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 0,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => 'POST',
+            CURLOPT_POSTFIELDS =>'{
+                    "caller_id":"' . $callerid . '",
+                    "appointment_id":"' . $eventid . '",
+                    "new_appointment_datetime":"' . $eventdatetime . '",
+                    "New_appointment_datetime_local":"' . $eventlocaltime . '"
+                }',
+            CURLOPT_HTTPHEADER => $header
+        ));
+        $status = curl_getinfo($curl, CURLINFO_RESPONSE_CODE);
+        $response = curl_exec($curl);
+        if ($status != 0) {
+            echo $response;
+            die;
+        }
+
+        curl_close($curl);
+
+    }
     /**
      * @param $value
      * @return string|null
@@ -161,6 +198,9 @@ class AppDispatch
 
             case "createSession":
                 return 'https://huzz90crca.execute-api.us-east-1.amazonaws.com/create_session';
+
+            case "rescheduleSession":
+                return 'https://huzz90crca.execute-api.us-east-1.amazonaws.com/reschedule_session';
 
             default:
                 return NULL;

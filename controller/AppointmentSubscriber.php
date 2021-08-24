@@ -46,32 +46,57 @@ class AppointmentSubscriber implements EventSubscriberInterface
         $this->credentials = $this->retrieve->getCredentials();
     }
 
+    /**
+     * @param AppoinmentSetEvent $event
+     */
     public function isEventTelehealth(AppoinmentSetEvent $event)
     {
         $appointmentdata = $event->givenAppointmentData();
         if (stristr($appointmentdata['form_title'], 'telehealth')) {
-                               $pid = $appointmentdata['form_pid'];
-                         $comm_data = $this->retrieve->getPatientDetails($pid);
-                           $patient = explode(", ", $appointmentdata['form_patient']);
-                     $eventdatetime = $appointmentdata['selected_date'] . " " . $appointmentdata['form_hour'] . ":" . $appointmentdata['form_minute'] . ":00";
-                             $phone = preg_replace('/[^0-9]/', '', $comm_data['phone_cell']);
-                 $this->patientcell = "+" . $GLOBALS['phone_country_code'] . $phone;
 
-            $creatsession = new AppDispatch();
-            $creatsession->apiRequestSession(
-                $this->credentials[1],
-                $this->credentials[0],
-                'createSession',
-                $GLOBALS['unique_installation_id'],
-                $event->eid,
-                $this->setEventUtcTime($eventdatetime),
-                $patient[0],
-                $patient[1],
-                $comm_data['email'],
-                $this->patientcell
-            );
+            $pid = $appointmentdata['form_pid'];
+            $comm_data = $this->retrieve->getPatientDetails($pid);
+            $patient = explode(", ", $appointmentdata['form_patient']);
+            $eventdatetime = $appointmentdata['selected_date'] . " " . $appointmentdata['form_hour'] . ":" . $appointmentdata['form_minute'] . ":00";
+            $hour = $appointmentdata['form_hour'] . ":" . $appointmentdata['form_minute'] . ":00";
+            $phone = preg_replace('/[^0-9]/', '', $comm_data['phone_cell']);
+            $this->patientcell = "+" . $GLOBALS['phone_country_code'] . $phone;
+                //check to see if the event has been scheduled if not enter data
+            $checkExistingAppointment = $this->retrieve->hasAppointment($event->eid);
+            if (empty($checkExistingAppointment)) {
+                    $creatsession = new AppDispatch();
+                    $creatsession->apiRequestSession(
+                        $this->credentials[1],
+                        $this->credentials[0],
+                        'createSession',
+                        $GLOBALS['unique_installation_id'],
+                        $event->eid,
+                        $this->setEventUtcTime($eventdatetime),
+                        $this->setEventLocalTime($eventdatetime),
+                        $patient[0],
+                        $patient[1],
+                        $comm_data['email'],
+                        $this->patientcell
+                    );
+            } elseif($checkExistingAppointment['event_date'] != $appointmentdata['selected_date'] ||
+            $checkExistingAppointment['time'] != $hour) {
+                //update lifemesh
+                $reschedule_session = new AppDispatch();
+                $reschedule_session->rescheduleSession(
+                    $this->credentials[1],
+                    $this->credentials[0],
+                    $GLOBALS['unique_installation_id'],
+                    $this->setEventUtcTime($eventdatetime),
+                    $this->setEventLocalTime($eventdatetime),
+                    $event->eid,
+                    'rescheduleSession'
+                );
+                //if scheduled update the existing schedule with new date and time.
+                $this->retrieve->updateSession($event->eid, $this->setEventLocalTime($eventdatetime));
+            }
         }
     }
+
 
     private function setEventUtcTime($eventdatetime)
     {
