@@ -12,6 +12,8 @@
 
 namespace OpenEMR\Modules\LifeMesh;
 
+use OpenEMR\Common\Logging\EventAuditLogger;
+
 require_once "Container.php";
 /**
  * Class AppDispatch
@@ -47,20 +49,22 @@ class AppDispatch
         $curl = curl_init();
         curl_setopt($curl, CURLOPT_URL, $this->setUrl($url)); //dynamically set the url for the api request
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($curl, CURLOPT_HEADER, true);
         curl_setopt($curl, CURLOPT_MAXREDIRS, 10);
         curl_setopt($curl, CURLOPT_ENCODING, '');
-        curl_setopt($curl, CURLOPT_TIMEOUT, 0);
+        curl_setopt($curl, CURLOPT_AUTOREFERER, true);
+        curl_setopt($curl, CURLOPT_TIMEOUT, 120);
         curl_setopt($curl, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_1_1);
         curl_setopt($curl, CURLOPT_FOLLOWLOCATION, true);
         curl_setopt($curl, CURLOPT_CUSTOMREQUEST, 'POST');
         curl_setopt($curl, CURLOPT_HTTPHEADER, ['Authorization: Basic ' . $data]);
-        $status = curl_getinfo($curl, CURLINFO_RESPONSE_CODE);
-        $response = curl_exec($curl);
 
+        $response = curl_exec($curl);
+        $status = curl_getinfo($curl, CURLINFO_RESPONSE_CODE);
         curl_close($curl);
 
         if ($url == 'accountCheck') {
-            if ($status === 0) {
+            if ($status === 200) {
                 return true;
             } else {
                 echo $status;
@@ -95,9 +99,14 @@ class AppDispatch
         curl_setopt_array($curl, array(
             CURLOPT_URL => $this->setUrl($url),
             CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_HEADER => true,
+            CURLOPT_AUTOREFERER => true,
             CURLOPT_ENCODING => '',
             CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 0,
+            CURLOPT_CONNECTTIMEOUT => 120,
+            CURLOPT_SSL_VERIFYPEER => false,
+            CURLOPT_SSL_VERIFYHOST => false,
+            CURLOPT_TIMEOUT => 120,
             CURLOPT_FOLLOWLOCATION => true,
             CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
             CURLOPT_CUSTOMREQUEST => 'POST',
@@ -113,14 +122,15 @@ class AppDispatch
             }',
             CURLOPT_HTTPHEADER => $header
         ));
-        $status = curl_getinfo($curl, CURLINFO_RESPONSE_CODE);
+
         $response = curl_exec($curl);
-file_put_contents("/var/www/html/errors/status.txt", 'Status code is ' . $status);
+        $status = curl_getinfo($curl, CURLINFO_RESPONSE_CODE);
+
         curl_close($curl);
 
-        if ($status === 0) {
-            $datatostore = json_decode($response, true);
-
+        if ($status === 200) {
+            $session = substr($response, 175); //remove header info
+            $datatostore = json_decode($session, true);
                          $meetingid = $datatostore['MeetingID'];
                          $patient_code = $datatostore['PatientCode'];
                          $patient_uri = $datatostore['PatientURL'];
@@ -128,22 +138,29 @@ file_put_contents("/var/www/html/errors/status.txt", 'Status code is ' . $status
                          $provider_uri = $datatostore['ProviderURL'];
                          $event_status = 'Scheduled';
                          $updatedAt = date("Y-m-d H:m:i");
-file_put_contents("/var/www/html/errors/timesaved.txt", $eventdatetimelocal);
+
             $time = explode("T", $eventdatetimelocal);
-            $this->store->saveSessionData(
-                $eventid,
-                $meetingid,
-                $patient_code,
-                $patient_uri,
-                $provider_code,
-                $provider_uri,
-                $eventdatetimelocal,
-                $time[1],
-                $event_status,
-                $updatedAt
-            );
+
+                $this->store->saveSessionData(
+                    $eventid,
+                    $meetingid,
+                    $patient_code,
+                    $patient_uri,
+                    $provider_code,
+                    $provider_uri,
+                    $eventdatetimelocal,
+                    $time[1],
+                    $event_status,
+                    $updatedAt
+                );
+
+        } elseif ($status === 471) {
+            // Display this to the screen so that they will know that a patient can't be scheduled same day telehealth visit
+            echo substr($response, 175);
+            echo "<br><h4>Close this window and reopen appointment. Set a date in the future. Then save.</h4>";
+            die;
         } else {
-            error_log('Lifemesh create session failed'. $status );
+            EventAuditLogger::instance()->newEvent("lifemesh_telehealth", $_SESSION['authUser'], 'Default',0, $response);;
         }
     }
 
@@ -159,9 +176,11 @@ file_put_contents("/var/www/html/errors/timesaved.txt", $eventdatetimelocal);
         curl_setopt_array($curl, array(
             CURLOPT_URL => $this->setUrl($url),
             CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_HEADER         => true,
+            CURLOPT_AUTOREFERER    => true,
             CURLOPT_ENCODING => '',
             CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 0,
+            CURLOPT_TIMEOUT => 120,
             CURLOPT_FOLLOWLOCATION => true,
             CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
             CURLOPT_CUSTOMREQUEST => 'POST',
@@ -173,9 +192,10 @@ file_put_contents("/var/www/html/errors/timesaved.txt", $eventdatetimelocal);
                 }',
             CURLOPT_HTTPHEADER => $header
         ));
-        $status = curl_getinfo($curl, CURLINFO_RESPONSE_CODE);
+
         $response = curl_exec($curl);
-        if ($status != 0) {
+        $status = curl_getinfo($curl, CURLINFO_RESPONSE_CODE);
+        if ($status != 200) {
             echo $response;
             die;
         }
