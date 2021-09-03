@@ -188,13 +188,14 @@ class AppDispatch
                     "caller_id":"' . $callerid . '",
                     "appointment_id":"' . $eventid . '",
                     "new_appointment_datetime":"' . $eventdatetime . '",
-                    "New_appointment_datetime_local":"' . $eventlocaltime . '"
+                    "new_appointment_datetime_local":"' . $eventlocaltime . '"
                 }',
             CURLOPT_HTTPHEADER => $header
         ));
 
         $response = curl_exec($curl);
         $status = curl_getinfo($curl, CURLINFO_RESPONSE_CODE);
+
         if ($status != 200) {
             echo $response;
             die;
@@ -203,6 +204,35 @@ class AppDispatch
         curl_close($curl);
 
     }
+
+    public function cancelSession($encryptedaccountinfo, $eventid, $callerid, $url)
+    {
+        $curl = curl_init();
+
+        curl_setopt_array($curl, array(
+            CURLOPT_URL => $this->setUrl($url),
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => '',
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 0,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => 'POST',
+            CURLOPT_POSTFIELDS =>'{
+                "caller_id":"' . $callerid . '",
+                "appointment_id":"' . $eventid . '"
+            }',
+            CURLOPT_HTTPHEADER => array(
+                'Authorization: Basic ' . $encryptedaccountinfo,
+                'Content-Type: application/json'
+            ),
+        ));
+
+        $response = curl_exec($curl);
+        curl_close($curl);
+        return $response;
+    }
+
     /**
      * @param $value
      * @return string|null
@@ -222,6 +252,9 @@ class AppDispatch
 
             case "rescheduleSession":
                 return 'https://huzz90crca.execute-api.us-east-1.amazonaws.com/reschedule_session';
+
+            case "cancelSession":
+                return 'https://huzz90crca.execute-api.us-east-1.amazonaws.com/cancel_session';
 
             default:
                 return NULL;
