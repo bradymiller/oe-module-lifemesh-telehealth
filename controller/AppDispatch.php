@@ -242,19 +242,19 @@ class AppDispatch
     {
         switch ($value) {
             case "accountCheck":
-                return 'https://huzz90crca.execute-api.us-east-1.amazonaws.com/account_check';
+                return 'https://api.telehealth.lifemesh.ai/account_check';
 
             case "accountSummary":
-                return 'https://huzz90crca.execute-api.us-east-1.amazonaws.com/account_summary';
+                return 'https://api.telehealth.lifemesh.ai/account_summary';
 
             case "createSession":
-                return 'https://huzz90crca.execute-api.us-east-1.amazonaws.com/create_session';
+                return 'https://api.telehealth.lifemesh.ai/create_session';
 
             case "rescheduleSession":
-                return 'https://huzz90crca.execute-api.us-east-1.amazonaws.com/reschedule_session';
+                return 'https://api.telehealth.lifemesh.ai/reschedule_session';
 
             case "cancelSession":
-                return 'https://huzz90crca.execute-api.us-east-1.amazonaws.com/cancel_session';
+                return 'https://api.telehealth.lifemesh.ai/cancel_session';
 
             default:
                 return NULL;
