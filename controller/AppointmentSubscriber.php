@@ -16,7 +16,7 @@ use DateTimeZone;
 use OpenEMR\Events\Appointments\AppoinmentSetEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
-require_once "Container.php";
+require_once dirname(__FILE__)."Container.php";
 
 class AppointmentSubscriber implements EventSubscriberInterface
 {
@@ -79,7 +79,7 @@ class AppointmentSubscriber implements EventSubscriberInterface
                         $comm_data['email'],
                         $this->patientcell
                     );
-            } elseif($checkExistingAppointment['event_date'] != $appointmentdata['selected_date'] ||
+            } elseif($checkExistingAppointment['event_date'] != $appointmentdata['form_date'] ||
             $checkExistingAppointment['time'] != $hour) {
                 //update lifemesh if time or date of the appointment has changed
                 $reschedule_session = new AppDispatch();
@@ -120,4 +120,6 @@ class AppointmentSubscriber implements EventSubscriberInterface
         $newDateTime = date_create($eventdatetime, new DateTimeZone($this->timezone));
         return $newDateTime->format("Y-m-d\TH:i:s");
     }
+
+
 }

@@ -12,7 +12,9 @@
  */
 namespace OpenEMR\Modules\LifeMesh;
 
+
 use OpenEMR\Menu\MenuEvent;
+use OpenEMR\Events\Appointments\AppointmentEvent;
 use Symfony\Component\EventDispatcher\Event;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -25,3 +27,13 @@ require_once "controller/AppointmentSubscriber.php";
 
 $subscriber = new AppointmentSubscriber();
 $eventDispatcher->addSubscriber($subscriber);
+
+
+function oe_module_lifemesh_telehealth_add_session_button(Event $event)
+{
+    ?>
+    <button type="button" class="btn btn-primary"><?php echo xlt('Start Session)'); ?></button>
+<?php
+}
+
+$eventDispatcher->addListener(AppointmentEvent::ACTION_RENDER_SESSION, 'oe_module_lifemesh_telehealth_add_session_button',0);

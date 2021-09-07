@@ -199,7 +199,8 @@ DB;
      */
     public function updateSession($eventid, $eventdatetime)
     {
-        $sql = "update lifemesh_chime_session set event_date = ?, event_time = ?, updateAt = NOW() WHERE pc_eid = ?";
+        $sql = "update lifemesh_chime_sessions set event_date = ?, event_time = ?, updatedAt = NOW(), "
+                                  ." event_status = 'Rescheduled' WHERE pc_eid = ?";
         $time = explode("T", $eventdatetime);
         sqlStatement($sql, [$eventdatetime, $time[1], $eventid]);
     }
