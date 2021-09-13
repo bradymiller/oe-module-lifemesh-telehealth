@@ -204,4 +204,10 @@ DB;
         $time = explode("T", $eventdatetime);
         sqlStatement($sql, [$eventdatetime, $time[1], $eventid]);
     }
+
+    public function getStoredSession($eid)
+    {
+        $sql = "select provider_code, provider_uri from lifemesh_chime_sessions where pc_eid = ?";
+        return sqlQuery($sql, [$eid]);
+    }
 }

@@ -13,10 +13,10 @@
 namespace OpenEMR\Modules\LifeMesh;
 
 use DateTimeZone;
-use OpenEMR\Events\Appointments\AppoinmentSetEvent;
+use OpenEMR\Events\Appointments\AppointmentSetEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
-require_once dirname(__FILE__)."Container.php";
+require_once dirname(__FILE__)."/Container.php";
 
 class AppointmentSubscriber implements EventSubscriberInterface
 {
@@ -31,7 +31,7 @@ class AppointmentSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents() : array
     {
         return [
-          AppoinmentSetEvent::EVENT_HANDLE  => 'isEventTelehealth'
+          AppointmentSetEvent::EVENT_HANDLE  => 'isEventTelehealth'
         ];
     }
 
@@ -47,9 +47,9 @@ class AppointmentSubscriber implements EventSubscriberInterface
     }
 
     /**
-     * @param AppoinmentSetEvent $event
+     * @param AppointmentSetEvent $event
      */
-    public function isEventTelehealth(AppoinmentSetEvent $event)
+    public function isEventTelehealth(AppointmentSetEvent $event)
     {
         $appointmentdata = $event->givenAppointmentData();
 
