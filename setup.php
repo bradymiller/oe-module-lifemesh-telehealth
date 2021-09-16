@@ -13,7 +13,7 @@
 
 
 require_once "../../../globals.php";
-require_once "controller/Container.php";
+require_once dirname(__FILE__)."/controller/Container.php";
 
 use OpenEMR\Core\Header;
 use OpenEMR\Modules\LifeMesh\Container;
