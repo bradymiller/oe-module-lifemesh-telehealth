@@ -14,7 +14,7 @@ namespace OpenEMR\Modules\LifeMesh;
 
 use OpenEMR\Common\Logging\EventAuditLogger;
 
-require_once dirname(__FILE__)."Container.php";
+require_once dirname(__FILE__)."/Container.php";
 /**
  * Class AppDispatch
  * @package OpenEMR\Modules\LifeMesh
