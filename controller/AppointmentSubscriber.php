@@ -43,7 +43,9 @@ class AppointmentSubscriber implements EventSubscriberInterface
         $db = new Container();
         $this->retrieve = $db->getDatabase();
         $this->timezone = $this->retrieve->getTimeZone();
-        $this->credentials = $this->retrieve->getCredentials();
+        if ($this->retrieve->doesTableExist() == 'exist') {
+            $this->credentials = $this->retrieve->getCredentials();
+        }
     }
 
     /**
