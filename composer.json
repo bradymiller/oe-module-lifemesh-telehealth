@@ -1,0 +1,15 @@
+{
+  "name": "lifemesh/oe-module-lifemesh-telehealth",
+  "description": "Telehealth module",
+  "minimum-stability": "stable",
+  "license": "proprietary",
+  "authors": [
+    {
+      "name": "Sherwin",
+      "email": "sherwingaddis@gmail.com"
+    }
+  ],
+  "require": {
+      "php": ">=7.4"
+  }
+}
