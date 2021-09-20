@@ -73,48 +73,49 @@ $data = $summaryurl->apiRequest($getcredentals['username'], $pass, $url);
     </div>
 </div>
 </body>
-<script type="application/javascript">
+<script>
     function createAuthorization() {
-        var username = "<?php echo $getcredentals['username']; ?>";
-        var password = "<?php echo $pass; ?>";
-        var auth = btoa(username:password);
+        const username = "<?php echo $getcredentals['username']; ?>";
+        const password = '<?php echo $pass; ?>';
+        const auth = btoa(username + ':' + password);
         return auth;
     }
     function cancelSubscription() {
 
-        var myHeaders = new Headers();
+        const myHeaders = new Headers();
         myHeaders.append("Authorization", "Basic " + createAuthorization());
 
-        var raw = "";
+        const raw = "";
 
-        var requestOptions = {
+        const requestOptions = {
             method: 'POST',
             headers: myHeaders,
             body: raw,
             redirect: 'follow'
         };
 
-        fetch("https://huzz90crca.execute-api.us-east-1.amazonaws.com/cancel_subscription", requestOptions)
+        fetch("https://api.telehealth.lifemesh.ai/cancel_subscription", requestOptions)
             .then(response => response.text())
             .then(result => console.log(result))
             .catch(error => console.log('error', error));
-        alert(result);
+        alert('Account Canceled');
     }
 
+
     function resetPassword() {
-        var myHeaders = new Headers();
+        const myHeaders = new Headers();
         myHeaders.append("Authorization", "Basic " + createAuthorization());
 
-        var raw = "";
+        const raw = "";
 
-        var requestOptions = {
+        const requestOptions = {
             method: 'POST',
             headers: myHeaders,
             body: raw,
             redirect: 'follow'
         };
 
-        fetch("https://huzz90crca.execute-api.us-east-1.amazonaws.com/reset_password", requestOptions)
+        fetch("https://api.telehealth.lifemesh.ai/reset_password", requestOptions)
             .then(response => response.text())
             .then(result => console.log(result))
             .catch(error => console.log('error', error));

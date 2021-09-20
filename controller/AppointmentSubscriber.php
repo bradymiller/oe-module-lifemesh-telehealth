@@ -46,6 +46,7 @@ class AppointmentSubscriber implements EventSubscriberInterface
         if ($this->retrieve->doesTableExist() == 'exist') {
             $this->credentials = $this->retrieve->getCredentials();
         }
+
     }
 
     /**
