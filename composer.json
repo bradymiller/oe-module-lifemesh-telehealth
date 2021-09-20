@@ -1,6 +1,7 @@
 {
   "name": "lifemesh/oe-module-lifemesh-telehealth",
   "description": "Telehealth module",
+  "type": "openemr-module",
   "minimum-stability": "stable",
   "license": "proprietary",
   "authors": [
@@ -11,5 +12,18 @@
   ],
   "require": {
       "php": ">=7.4"
+  },
+  "autoload": {
+    "psr-4": {
+    }
+  },
+  "require": {
+    "openemr/oe-module-installer-plugin": "0.1.0",
+    "ext-json": "*",
+    "ext-curl": "*",
+    "php": "^7.4"
+  },
+  "conflict": {
+    "openemr/openemr": "<6.0.0"
   }
 }
