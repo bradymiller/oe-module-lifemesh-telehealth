@@ -10,10 +10,6 @@
       "email": "sherwingaddis@gmail.com"
     }
   ],
-  "autoload": {
-    "psr-4": {
-    }
-  },
   "require": {
     "openemr/oe-module-installer-plugin": "0.1.0",
     "ext-json": "*",
