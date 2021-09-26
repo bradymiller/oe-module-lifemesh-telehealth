@@ -133,8 +133,12 @@ DB;
      */
     public function getTimeZone()
     {
-        $programtz = sqlQuery("SELECT gl_value FROM `globals` WHERE `gl_name` = 'gbl_time_zone'");
-        return $programtz['gl_value'];
+        $programtz = sqlQuery("SELECT `gl_value` FROM `globals` WHERE `gl_name` = 'gbl_time_zone'");
+        if (empty($programtz['gl_value'])) {
+            return date_default_timezone_get();
+        } else {
+            return $programtz['gl_value'];
+        }
     }
 
     /**
