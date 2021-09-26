@@ -36,27 +36,26 @@ function oe_module_lifemesh_telehealth_render_javascript(AppointmentRenderEvent 
 {
     $appt = $event->getAppt();
 
-    if ((stristr($appt['pc_title'], 'telehealth'))) {
-        // from old oe_module_lifemesh_telehealth_cancel_javascript
-        ?>
-        function cancel_telehealth() {
-            let title = <?php echo xlj('Cancel Telehealth Appt'); ?>;
-            let eid = <?php echo js_escape($appt['eid']); ?>;
-            dlgopen('../../modules/custom_modules/oe-module-lifemesh-telehealth/cancel_telehealth_session.php?eid='+eid, '', 650, 300, '', title);
-        }
-        <?php
-
-        // from old oe_module_lifemesh_telehealth_start_session
-        $data = new Container();
-        $session = $data->getDatabase();
-        $providersession =  $session->getStoredSession($appt['eid']);
-        if ($providersession) {
+    if ((!empty($appt['pc_title'])) && (stristr($appt['pc_title'], 'telehealth'))) {
+        $providersession =  ((new Container())->getDatabase())->getStoredSession($appt['pc_eid']);
+        if (!empty($providersession)) {
             $code = $providersession['provider_code'];
             $uri = $providersession['provider_uri'];
         } else {
-            error_log('no Session found for this calendar event');
+            error_log('No Lifemesh telehealth session found for a calendar event');
+            ?>
+            alert(<?php echo xlj('No Lifemesh telehealth session found for this calendar event'); ?>);
+            <?php
+            return;
         }
+
         ?>
+        function cancel_telehealth() {
+            let title = <?php echo xlj('Cancel Telehealth Appt'); ?>;
+            let eid = <?php echo js_escape($appt['pc_eid']); ?>;
+            dlgopen('../../modules/custom_modules/oe-module-lifemesh-telehealth/cancel_telehealth_session.php?eid=' + encodeURIComponent(eid), '', 650, 300, '', title);
+        }
+
         function startSession() {
             window.open(<?php echo js_escape($uri); ?>, '_blank', 'location=yes');
         }
@@ -68,17 +67,20 @@ function oe_module_lifemesh_telehealth_render_below_patient(AppointmentRenderEve
 {
     $appt = $event->getAppt();
 
-    if ((stristr($appt['pc_title'], 'telehealth'))) {
-    ?>
-        <div>
-            <style>
-                .gray-background { background-color: darkgray; }
-                .white {color: #ffffff; }
-            </style>
-            <span style="padding-right: 150px"><button class="btn btn-primary gray-background white padding" onclick="cancel_telehealth()"><?php echo xlt("Cancel Telehealth"); ?></button></span>
-            <span style="padding-left: 150px"><button type="button" class="btn btn-primary gray-background white" onclick="startSession()"><?php echo xlt("Start Session"); ?></button></span>
-        </div>
-    <?php
+    if ((!empty($appt['pc_title'])) && (stristr($appt['pc_title'], 'telehealth'))) {
+        $providersession =  ((new Container())->getDatabase())->getStoredSession($appt['pc_eid']);
+        if (!empty($providersession)) {
+        ?>
+            <div>
+                <style>
+                    .gray-background { background-color: darkgray; }
+                    .white {color: #ffffff; }
+                </style>
+                <span style="padding-right: 150px"><button type="button" class="btn btn-primary gray-background white padding" onclick="cancel_telehealth()"><?php echo xlt("Cancel Telehealth"); ?></button></span>
+                <span style="padding-left: 150px"><button type="button" class="btn btn-primary gray-background white" onclick="startSession()"><?php echo xlt("Start Session"); ?></button></span>
+            </div>
+        <?php
+        }
     }
 }
 
