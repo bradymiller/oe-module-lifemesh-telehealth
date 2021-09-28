@@ -11,8 +11,8 @@
  *
  */
 
-require_once "../../../../globals.php";
-require_once "../controller/Container.php";
+require_once dirname(__FILE__, 5) . "/globals.php";
+require_once dirname(__FILE__, 2) . "/controller/Container.php";
 
 use OpenEMR\Modules\LifeMesh\Container;
 use OpenEMR\Core\Header;
@@ -28,6 +28,12 @@ $summaryurl = $getaccountsummary->getAppDispatch();
 $url = 'accountSummary';
 $data = $summaryurl->apiRequest($getcredentals['username'], $pass, $url);
 
+if ($_SERVER['HTTPS']) {
+    $prefix = "https:";
+} else {
+    $prefix = "http:";
+}
+$url = $prefix . '//' . $_SERVER['HTTP_HOST'] . dirname($_SERVER['PHP_SELF']) . "/wipeaccount.php";
 ?>
 
 <!doctype html>
@@ -107,7 +113,7 @@ $data = $summaryurl->apiRequest($getcredentals['username'], $pass, $url);
         myHeaders.append("Authorization", "Basic " + createAuthorization());
 
         const raw = "";
-
+        const url = "<?php echo $url ?>";
         const requestOptions = {
             method: 'POST',
             headers: myHeaders,
@@ -117,14 +123,18 @@ $data = $summaryurl->apiRequest($getcredentals['username'], $pass, $url);
 
         fetch("https://api.telehealth.lifemesh.ai/reset_password", requestOptions)
             .then(response => response.text())
-            .then(result => console.log(result))
-            .catch(error => console.log('error', error));
+            .then(
+                $.ajax({
+                    url: url,
+                    type: 'GET',
+                    success:function(response){
+                        alert('Close account page and check your email for new password');
+                    }
+                })
+            )
+            .catch(error => alert(error + 'Account Reset Failed'));
 
-        fetch("wipeaccount.php")
-            .then(response => response.text())
-            .then(result => console.log(result))
-            .catch(error => console.log('error', error));
-        alert('Close account page and check your email for new password');
+
     }
 </script>
 </html>

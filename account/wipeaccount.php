@@ -1,4 +1,5 @@
 <?php
+
 /*
  *
  * @package      OpenEMR
@@ -10,9 +11,10 @@
  *
  */
 
-use OpenEMR\Modules\LifeMesh\Database;
+require_once dirname(__FILE__, 5) .  "/globals.php";
+require_once dirname(__FILE__, 2) . "/controller/Container.php";
 
-require_once "../controller/Container.php";
+use OpenEMR\Modules\LifeMesh\Database;
 
 $deleteaccountinformation = new Database();
 

@@ -17,6 +17,6 @@
     "php": ">=7.4"
   },
   "conflict": {
-    "openemr/openemr": "<6.0.0"
+    "openemr/openemr": ">=6.0.0"
   }
 }
