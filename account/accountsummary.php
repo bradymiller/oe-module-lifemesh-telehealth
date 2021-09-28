@@ -27,13 +27,7 @@ $pass = $password->cryptoGen->decryptStandard($getcredentals['password']);
 $summaryurl = $getaccountsummary->getAppDispatch();
 $url = 'accountSummary';
 $data = $summaryurl->apiRequest($getcredentals['username'], $pass, $url);
-
-if ($_SERVER['HTTPS']) {
-    $prefix = "https:";
-} else {
-    $prefix = "http:";
-}
-$url = $prefix . '//' . $_SERVER['HTTP_HOST'] . dirname($_SERVER['PHP_SELF']) . "/wipeaccount.php";
+$url = 'wipeaccount.php';
 ?>
 
 <!doctype html>
