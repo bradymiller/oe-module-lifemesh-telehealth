@@ -35,9 +35,10 @@ CREATE TABLE IF NOT EXISTS lifemesh_chime_sessions(
   `patient_uri`   TEXT        NOT NULL comment 'Patient URI',
   `provider_code` VARCHAR(8)  NOT NULL comment 'Provider PIN',
   `provider_uri`  TEXT        NOT NULL comment 'Provider URI',
-  `event_date`    DATE    NOT NULL,
-  `event_time`    TIME    NOT NULL,
+  `event_date`    DATE    DEFAULT NULL,
+  `event_time`    TIME    DEFAULT NULL,
   `event_status`  VARCHAR(15)  NOT NULL,
+  `cancelled`     tinyint(4) NOT NULL DEFAULT 0,
   `updatedAt`     DATETIME    DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE = InnoDB COMMENT = 'lifemesh chime sessions';
 DB;
@@ -46,8 +47,8 @@ DB;
  CREATE TABLE IF NOT EXISTS `lifemesh_account`
 (
     `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT,
-    `username` TEXT DEFAULT NULL,
-    `password` TEXT DEFAULT NULL,
+    `username` TEXT,
+    `password` TEXT,
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB COMMENT = 'Lifemesh Telehealth';
 DB;
@@ -99,16 +100,20 @@ DB;
     }
 
     /**
-     * @return array
+     * @return array or boolean
      */
     public function getCredentials()
     {
         $returnArray = [];
         $credentials = sqlQuery("SELECT username, password FROM lifemesh_account");
-        $pass = $this->cryptoGen->decryptStandard($credentials['password']);
-        $returnArray[] = $pass;
-        $returnArray[] = $credentials['username'];
-        return $returnArray;
+        if (!empty($credentials)) {
+            $pass = $this->cryptoGen->decryptStandard($credentials['password']);
+            $returnArray[] = $pass;
+            $returnArray[] = $credentials['username'];
+            return $returnArray;
+        } else {
+            return false;
+        }
     }
 
     /**
@@ -212,7 +217,16 @@ DB;
 
     public function getStoredSession($eid)
     {
-        $sql = "select provider_code, provider_uri from lifemesh_chime_sessions where pc_eid = ?";
+        $sql = "select `provider_code`, `provider_uri`, `cancelled` from `lifemesh_chime_sessions` where `pc_eid` = ?";
         return sqlQuery($sql, [$eid]);
+    }
+
+    /**
+     * @param $eventid
+     */
+    public function cancelSessionDatabase($eventid)
+    {
+        $sql = "update `lifemesh_chime_sessions` set `cancelled` = 1 WHERE `pc_eid` = ?";
+        sqlStatement($sql, [$eventid]);
     }
 }

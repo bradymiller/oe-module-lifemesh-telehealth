@@ -32,9 +32,12 @@ $checkaccount = $getcontainer->getAppDispatch();
 $url = 'accountCheck';
 $accountisvalid = $checkaccount->apiRequest($username, $password, $url);
 
-if ($accountisvalid) {
+if ($accountisvalid === true) {
     $savecredentials = $getcontainer->getDatabase();
     $savecredentials->saveUserInformation($username, $password);
+} else {
+    echo text($checkaccount->getStatusMessage());
+    exit;
 }
 
 header('Location: accountsummary.php');
