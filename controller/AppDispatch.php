@@ -25,6 +25,7 @@ class AppDispatch
     private $db;
     public $createSession;
     private $store;
+    private $statusMessage;
 
 
     /**
@@ -66,13 +67,30 @@ class AppDispatch
             if ($status === 200) {
                 return true;
             } else {
-                echo $status;
-                die(" An Error occured. Username or Password is incorrect. Please contact Lifemesh ");
+                if ($status === 261) {
+                    $statusMessage = "Subscription is not active. Please contact Lifemesh";
+                } else if ($status === 401) {
+                    $statusMessage = "An Error occurred. Username or Password is incorrect. Please contact Lifemesh";
+                } else {
+                    $statusMessage = "An Error occurred. Please contact Lifemesh";
+                }
+                $this->setStatusMessage($statusMessage);
+                return false;
             }
         }
         if ($url == 'accountSummary') {
             return $response;
         }
+    }
+
+    public function getStatusMessage()
+    {
+        return $this->statusMessage;
+    }
+
+    public function setStatusMessage($status)
+    {
+        $this->statusMessage = $status;
     }
 
     public function apiRequestSession(
@@ -229,6 +247,9 @@ class AppDispatch
 
         $response = curl_exec($curl);
         curl_close($curl);
+
+        $this->store->cancelSessionDatabase($eventid);
+
         return $response;
     }
 
