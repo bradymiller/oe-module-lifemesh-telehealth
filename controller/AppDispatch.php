@@ -26,6 +26,7 @@ class AppDispatch
     public $createSession;
     private $store;
     private $statusMessage;
+    private $status;
 
 
     /**
@@ -61,6 +62,7 @@ class AppDispatch
 
         $response = curl_exec($curl);
         $status = curl_getinfo($curl, CURLINFO_RESPONSE_CODE);
+        $this->status = $status;
         curl_close($curl);
 
         if ($url == 'accountCheck') {
@@ -74,7 +76,7 @@ class AppDispatch
                 } else {
                     $statusMessage = "An Error occurred. Please contact Lifemesh";
                 }
-                $this->setStatusMessage($statusMessage);
+                $this->statusMessage = $statusMessage;
                 return false;
             }
         }
@@ -88,9 +90,9 @@ class AppDispatch
         return $this->statusMessage;
     }
 
-    public function setStatusMessage($status)
+    public function getStatus()
     {
-        $this->statusMessage = $status;
+        return $this->status;
     }
 
     public function apiRequestSession(
