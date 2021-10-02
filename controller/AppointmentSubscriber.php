@@ -13,6 +13,7 @@
 namespace OpenEMR\Modules\LifeMesh;
 
 use DateTimeZone;
+use OpenEMR\Common\Uuid\UniqueInstallationUuid;
 use OpenEMR\Events\Appointments\AppointmentSetEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
@@ -67,13 +68,14 @@ class AppointmentSubscriber implements EventSubscriberInterface
             $this->patientcell = "+" . $GLOBALS['phone_country_code'] . $phone;
                 //check to see if the event has been scheduled if not enter data
             $checkExistingAppointment = $this->retrieve->hasAppointment($event->eid);
+            $uniqueInstallationId = UniqueInstallationUuid::getUniqueInstallationUuid();
             if (empty($checkExistingAppointment)) {
                     $creatsession = new AppDispatch();
                     $creatsession->apiRequestSession(
                         $this->credentials[1],
                         $this->credentials[0],
                         'createSession',
-                        $GLOBALS['unique_installation_id'],
+                        $uniqueInstallationId,
                         $event->eid,
                         $this->setEventUtcTime($eventdatetime),
                         $this->setEventLocalTime($eventdatetime),
@@ -89,7 +91,7 @@ class AppointmentSubscriber implements EventSubscriberInterface
                 $reschedule_session->rescheduleSession(
                     $this->credentials[1],
                     $this->credentials[0],
-                    $GLOBALS['unique_installation_id'],
+                    $uniqueInstallationId,
                     $this->setEventUtcTime($eventdatetime),
                     $this->setEventLocalTime($eventdatetime),
                     $event->eid,

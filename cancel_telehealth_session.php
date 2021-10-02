@@ -14,6 +14,8 @@
 require_once dirname(__DIR__, 3) . "/globals.php";;
 require_once "controller/Container.php";
 
+use OpenEMR\Common\Uuid\UniqueInstallationUuid;
+
 /** @var TYPE_NAME $eventid */
 $eventid = $_GET['eid'];
 
@@ -27,6 +29,6 @@ $encryptedaccountinfo = base64_encode($accountinfo[1] . ":" . $accountinfo[0]);
 
 $cancel = $action->getAppDispatch();
 
-echo $cancel->cancelSession($encryptedaccountinfo, $eventid, $GLOBALS['unique_installation_id'],'cancelSession');
+$uniqueInstallationId = UniqueInstallationUuid::getUniqueInstallationUuid();
 
-
+echo $cancel->cancelSession($encryptedaccountinfo, $eventid, $uniqueInstallationId,'cancelSession');
