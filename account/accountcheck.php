@@ -32,7 +32,10 @@ $checkaccount = $getcontainer->getAppDispatch();
 $url = 'accountCheck';
 $accountisvalid = $checkaccount->apiRequest($username, $password, $url);
 
-if ($accountisvalid === true) {
+if (($checkaccount->getStatus() === 200 && $accountisvalid === true) ||
+    ($checkaccount->getStatus() === 261 && $accountisvalid === false)) {
+    // Pass when valid with active subscription (status is 200 and accountisvalid is true) or
+    //  without active subscription (status is 261 and accountisvalid is false)
     $savecredentials = $getcontainer->getDatabase();
     $savecredentials->saveUserInformation($username, $password);
 } else {

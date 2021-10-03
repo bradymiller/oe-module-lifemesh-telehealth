@@ -89,7 +89,7 @@ function oe_module_lifemesh_telehealth_render_below_patient(AppointmentRenderEve
             $statusIcon = "fa-check-square";
         }
     } else {
-        $outputStatus = "Not functional. A subscriber is not configured in the Lifemesh Telehealth module.";
+        $outputStatus = "Not working. A subscriber is not configured in the Lifemesh Telehealth module.";
         $statusBackground = "bg-danger";
         $statusIcon = "fa-exclamation-triangle";
     }
