@@ -85,16 +85,35 @@ class AppDispatch
         }
     }
 
+    /**
+     * @return mixed
+     */
     public function getStatusMessage()
     {
         return $this->statusMessage;
     }
 
+    /**
+     * @param $status
+     */
     public function getStatus()
     {
         return $this->status;
     }
 
+    /**
+     * @param $username
+     * @param $password
+     * @param $url
+     * @param $callid
+     * @param $eventid
+     * @param $eventdatetimeutc
+     * @param $eventdatetimelocal
+     * @param $patientfirstname
+     * @param $patientlastname
+     * @param $patientemail
+     * @param $patientcell
+     */
     public function apiRequestSession(
         $username,
         $password,
@@ -183,6 +202,15 @@ class AppDispatch
         }
     }
 
+    /**
+     * @param $username
+     * @param $password
+     * @param $callerid
+     * @param $eventdatetime
+     * @param $eventlocaltime
+     * @param $eventid
+     * @param $url
+     */
     public function rescheduleSession($username, $password, $callerid, $eventdatetime,$eventlocaltime, $eventid, $url)
     {
         $data = base64_encode($username . ':' . $password);
@@ -217,13 +245,19 @@ class AppDispatch
 
         if ($status != 200) {
             echo $response;
-            die;
         }
 
         curl_close($curl);
 
     }
 
+    /**
+     * @param $encryptedaccountinfo
+     * @param $eventid
+     * @param $callerid
+     * @param $url
+     * @return bool|string
+     */
     public function cancelSession($encryptedaccountinfo, $eventid, $callerid, $url)
     {
         $curl = curl_init();
@@ -256,6 +290,73 @@ class AppDispatch
     }
 
     /**
+     * @param $encryptedaccountinfo
+     * @param $url
+     * @return bool|string
+     */
+    public function resetPassword($encryptedaccountinfo, $url)
+    {
+        $curl = curl_init();
+
+        curl_setopt_array($curl, array(
+            CURLOPT_URL => $this->setUrl($url),
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => '',
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 0,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => 'POST',
+            CURLOPT_HTTPHEADER => array(
+                'Authorization: ' . $encryptedaccountinfo
+            ),
+        ));
+
+        $response = curl_exec($curl);
+        $status = curl_getinfo($curl, CURLINFO_RESPONSE_CODE);
+        curl_close($curl);
+        if ($status == 200) {
+            return 'complete';
+        } else {
+            return $response;
+        }
+    }
+
+    /**
+     * @param $encryptedaccountinfo
+     * @param $url
+     * @return bool|string
+     */
+    public function cancelSubscription($encryptedaccountinfo, $url)
+    {
+        $curl = curl_init();
+
+        curl_setopt_array($curl, array(
+            CURLOPT_URL => $this->setUrl($url),
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => '',
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 0,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => 'POST',
+            CURLOPT_HTTPHEADER => array(
+                'Authorization: Basic ' . $encryptedaccountinfo,
+                'Content-Type: application/json'
+            ),
+        ));
+
+        $response = curl_exec($curl);
+        $status = curl_getinfo($curl, CURLINFO_RESPONSE_CODE);
+        curl_close($curl);
+        if ($status == 200) {
+            return $response;
+        } else {
+            return $status;
+        }
+    }
+
+    /**
      * @param $value
      * @return string|null
      * set URL values based on the call to action
@@ -277,6 +378,12 @@ class AppDispatch
 
             case "cancelSession":
                 return 'https://api.telehealth.lifemesh.ai/cancel_session';
+
+            case "resetPassword":
+                return "https://api.telehealth.lifemesh.ai/reset_password";
+
+            case "cancelSubscription":
+                return "https://api.telehealth.lifemesh.ai/cancel_subscription";
 
             default:
                 return NULL;
