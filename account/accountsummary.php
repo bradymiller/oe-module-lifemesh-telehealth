@@ -14,11 +14,17 @@
 require_once dirname(__FILE__, 5) . "/globals.php";
 require_once dirname(__FILE__, 2) . "/controller/Container.php";
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Modules\LifeMesh\Container;
 use OpenEMR\Core\Header;
 
-$getcredentals = sqlQuery("select username, password from lifemesh_account");
+if (!AclMain::aclCheckCore('admin', 'manage_modules')) {
+    echo xlt('Not Authorized');
+    exit;
+}
+
+$getcredentals = sqlQuery("select `username`, `password` from `lifemesh_account`");
 if ($getcredentals['username'] == '') {
     die('You are not logged in');
 }
@@ -51,14 +57,16 @@ $setup = '../moduleConfig.php';
     ?>
     <div id="summary">
         <p><strong>Account</strong><br>
-        <?php echo $getcredentals['username']?></p>
+        <?php echo text($getcredentals['username']); ?></p>
         <p></p>
+        <p><strong>Account Status</strong><br>
+        <?php echo ($j_data['status'] == "active") ? "Subscription is active" : "Subscription is not active"; ?></p>
         <p></p>
         <p><strong>Billed Telehealth Sessions this Billing Cycle</strong><br>
-        <?php print $j_data['session_count']; ?></p>
+        <?php print text($j_data['session_count']); ?></p>
         <p></p>
         <p><strong>Billing Cycle Ends</strong><br>
-        <?php print gmdate("Y-m-d TH:i:s\Z", $j_data['billing_period_end']); ?></p>
+        <?php print text(gmdate("Y-m-d TH:i:s\Z", $j_data['billing_period_end'])); ?></p>
     </div>
     <div id="plans">
         <p><strong>Telehealth Pricing Tiers</strong><br>
@@ -72,23 +80,28 @@ $setup = '../moduleConfig.php';
     <div id="acctmgr">
         <p></p>
         <p>Reset account password <button class="btn btn-primary" onclick="resetPassword()">Click Here</button></p>
-        <p>Do you want to cancel your subscription? <button class="btn btn-primary" onclick="cancelSubscription()">Click Here</button></p>
+        <?php if ($j_data['status'] == "active") { ?>
+            <p>Do you want to cancel your subscription? <button class="btn btn-primary" onclick="cancelSubscription()">Click Here</button></p>
+        <?php } else { ?>
+            <p>Don't have an active subscription? <a class="btn btn-primary" href="../stripe/client/service.php" target="_blank">Click Here</a></p>
+        <?php } ?>
+        <p>Sign out <button class="btn btn-primary" onclick="signOut()">Click Here</button></p>
     </div>
 </div>
 </body>
 <script>
-    const token = "<?php echo attr(CsrfUtils::collectCsrfToken()); ?>";
-    const reset_url = "<?php echo $reset_cancel_url . '?acct=reset&token='; ?>";
-    const cancel_url = "<?php echo $reset_cancel_url . '?acct=cancel&token='; ?>";
-    const url = "<?php echo $url; ?>";
-    const redirect = "<?php echo $setup; ?>";
+    const token = <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>;
+    const reset_url = <?php echo js_escape($reset_cancel_url . '?acct=reset&token='); ?>;
+    const cancel_url = <?php echo js_escape($reset_cancel_url . '?acct=cancel&token='); ?>;
+    const url = <?php echo js_escape($url . '?token='); ?>;
+    const redirect = <?php echo js_escape($setup); ?>;
 
     async function cancelSubscription() {
-        let response = await fetch(cancel_url+token);
+        let response = await fetch(cancel_url + encodeURIComponent(token));
         let result = await response.text();
         if (result != '404') {
             $.ajax({
-                url: url,
+                url: url + encodeURIComponent(token),
                 type: 'GET',
                 success: function (response) {
                     alert('Account Cancellation Complete');
@@ -100,12 +113,23 @@ $setup = '../moduleConfig.php';
         }
     }
 
+    async function signOut() {
+        $.ajax({
+            url: url + encodeURIComponent(token),
+            type: 'GET',
+            success: function (response) {
+                alert('Account Sign out Complete');
+                window.location = redirect;
+            }
+        })
+    }
+
     async function resetPassword() {
-        let response = await fetch(reset_url+token);
+        let response = await fetch(reset_url + encodeURIComponent(token));
         let result = await response.text();
         if (result == 'complete') {
                 $.ajax({
-                    url: url,
+                    url: url + encodeURIComponent(token),
                     type: 'GET',
                     success:function(response){
                         alert('Close account page and check your email for new password');

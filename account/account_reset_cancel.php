@@ -12,17 +12,23 @@
 
 require_once dirname(__FILE__, 5) . "/globals.php";
 
-use OpenEMR\Modules\LifeMesh\Container;
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Modules\LifeMesh\Container;
 
 if (!CsrfUtils::verifyCsrfToken($_GET["token"])) {
     CsrfUtils::csrfNotVerified();
 }
 
+if (!AclMain::aclCheckCore('admin', 'manage_modules')) {
+    echo xlt('Not Authorized');
+    exit;
+}
+
 function credentials(): string
 {
     $getaccountsummary = new Container();
-    $getcredentals = sqlQuery("select username, password from lifemesh_account");
+    $getcredentals = sqlQuery("select `username`, `password` from `lifemesh_account`");
     $password = $getaccountsummary->getDatabase();
     $username = $getcredentals['username'];
     $pass = $password->cryptoGen->decryptStandard($getcredentals['password']);
@@ -34,7 +40,7 @@ function cancelSubscription()
     $getaccountsummary = new Container();
     $encryptedaccountinfo = credentials();
     $docancelation = $getaccountsummary->getAppDispatch();
-    echo $docancelation->cancelSubscription($encryptedaccountinfo, 'cancelSubscription');
+    return $docancelation->cancelSubscription($encryptedaccountinfo, 'cancelSubscription');
 }
 
 function resetPassword()
@@ -42,14 +48,14 @@ function resetPassword()
     $getaccountsummary = new Container();
     $encryptedaccountinfo = credentials();
     $doreset = $getaccountsummary->getAppDispatch();
-    echo $doreset->resetPassword($encryptedaccountinfo, 'resetPassword');
+    return $doreset->resetPassword($encryptedaccountinfo, 'resetPassword');
 }
 
 if ($_GET['acct'] == 'reset') {
-    echo resetPassword();
+    echo text(resetPassword());
 }
 
 if ($_GET['acct'] == 'cancel') {
-    echo cancelSubscription();
+    echo text(cancelSubscription());
 }
 

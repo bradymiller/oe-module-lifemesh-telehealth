@@ -11,10 +11,17 @@
  */
 
 
-require_once dirname(__DIR__, 3) . "/globals.php";;
+require_once dirname(__DIR__, 3) . "/globals.php";
 require_once "controller/Container.php";
 
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Uuid\UniqueInstallationUuid;
+
+if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token"])) {
+    CsrfUtils::csrfNotVerified();
+}
+
+// no acl check since this needs to be accessed by entire practice from calendar
 
 /** @var TYPE_NAME $eventid */
 $eventid = $_GET['eid'];
@@ -31,4 +38,4 @@ $cancel = $action->getAppDispatch();
 
 $uniqueInstallationId = UniqueInstallationUuid::getUniqueInstallationUuid();
 
-echo $cancel->cancelSession($encryptedaccountinfo, $eventid, $uniqueInstallationId,'cancelSession');
+echo text($cancel->cancelSession($encryptedaccountinfo, $eventid, $uniqueInstallationId,'cancelSession'));

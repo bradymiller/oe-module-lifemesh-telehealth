@@ -32,9 +32,9 @@ CREATE TABLE IF NOT EXISTS lifemesh_chime_sessions(
   `pc_eid`        int(11)     NOT NULL UNIQUE comment 'Event ID from Calendar Table',
   `meeting_id`    VARCHAR(50) NOT NULL comment 'chime session ID',
   `patient_code`  VARCHAR(8)  NOT NULL comment 'Patient PIN',
-  `patient_uri`   TEXT        NOT NULL comment 'Patient URI',
+  `patient_uri`   TEXT        comment 'Patient URI',
   `provider_code` VARCHAR(8)  NOT NULL comment 'Provider PIN',
-  `provider_uri`  TEXT        NOT NULL comment 'Provider URI',
+  `provider_uri`  TEXT        comment 'Provider URI',
   `event_date`    DATE    DEFAULT NULL,
   `event_time`    TIME    DEFAULT NULL,
   `event_status`  VARCHAR(15)  NOT NULL,
@@ -84,7 +84,7 @@ DB;
     public function saveUserInformation($username, $password)
     {
         $pass = $this->cryptoGen->encryptStandard($password);
-        $sql = "INSERT INTO lifemesh_account SET id = 1, username = ?, password = ?";
+        $sql = "INSERT INTO `lifemesh_account` SET `id` = 1, `username` = ?, `password` = ?";
         sqlStatement($sql, [$username, $pass]);
         return true;
     }
@@ -94,9 +94,9 @@ DB;
      */
     public function removeAccountInfo()
     {
-        $sql = "DELETE FROM lifemesh_account";
-         sqlStatement($sql);
-         return "completed";
+        $sql = "DELETE FROM `lifemesh_account`";
+        sqlStatement($sql);
+        return "completed";
     }
 
     /**
@@ -105,7 +105,7 @@ DB;
     public function getCredentials()
     {
         $returnArray = [];
-        $credentials = sqlQuery("SELECT username, password FROM lifemesh_account");
+        $credentials = sqlQuery("SELECT `username`, `password` FROM `lifemesh_account`");
         if (!empty($credentials)) {
             $pass = $this->cryptoGen->decryptStandard($credentials['password']);
             $returnArray[] = $pass;
@@ -122,7 +122,7 @@ DB;
      */
     public function getPatientDetails($pid)
     {
-        $sql = "SELECT email, phone_cell FROM patient_data where pid = ?";
+        $sql = "SELECT `email`, `phone_cell` FROM `patient_data` where `pid` = ?";
         $comm = sqlQuery($sql, [$pid]);
         if ($comm['phone_cell'] == '') {
             die('Please add cell number to patient chart and save appointment again to create life mesh service token');
@@ -169,16 +169,16 @@ DB;
                                     $event_status,
                                     $updatedAt)
     {
-        $sql = "REPLACE INTO lifemesh_chime_sessions SET pc_eid = ?, " .
-            "meeting_id = ?, " .
-            "patient_code = ?, " .
-            "patient_uri = ?, " .
-            "provider_code = ?, " .
-            "provider_uri = ?, " .
-            "event_date = ?, " .
-            "event_time = ?, " .
-            "event_status = ?, " .
-            "updatedAt = ? ";
+        $sql = "REPLACE INTO `lifemesh_chime_sessions` SET `pc_eid` = ?, " .
+            "`meeting_id` = ?, " .
+            "`patient_code` = ?, " .
+            "`patient_uri` = ?, " .
+            "`provider_code` = ?, " .
+            "`provider_uri` = ?, " .
+            "`event_date` = ?, " .
+            "`event_time` = ?, " .
+            "`event_status` = ?, " .
+            "`updatedAt` = ? ";
 
         sqlStatement($sql, [$eventid,
             $meetingid,
@@ -198,7 +198,7 @@ DB;
      */
     public function hasAppointment($eventid)
     {
-        $sql = "select event_date, event_time from lifemesh_chime_sessions where pc_eid = ?";
+        $sql = "select `event_date`, `event_time` from `lifemesh_chime_sessions` where `pc_eid` = ?";
         $appt = sqlQuery($sql, [$eventid]);
         return $appt;
     }
@@ -209,8 +209,8 @@ DB;
      */
     public function updateSession($eventid, $eventdatetime)
     {
-        $sql = "update lifemesh_chime_sessions set event_date = ?, event_time = ?, updatedAt = NOW(), "
-                                  ." event_status = 'Rescheduled' WHERE pc_eid = ?";
+        $sql = "update `lifemesh_chime_sessions` set `event_date` = ?, `event_time` = ?, `updatedAt` = NOW(), "
+                                  ." `event_status` = 'Rescheduled' WHERE `pc_eid` = ?";
         $time = explode("T", $eventdatetime);
         sqlStatement($sql, [$eventdatetime, $time[1], $eventid]);
     }

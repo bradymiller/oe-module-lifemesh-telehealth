@@ -14,14 +14,17 @@
 require_once "../../../../globals.php";
 require_once "../controller/Container.php";
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Modules\LifeMesh\Container;
 
+if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token"])) {
+    CsrfUtils::csrfNotVerified();
+}
 
-if (!empty($_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+if (!AclMain::aclCheckCore('admin', 'manage_modules')) {
+    echo xlt('Not Authorized');
+    exit;
 }
 
 $username = $_POST['username'];

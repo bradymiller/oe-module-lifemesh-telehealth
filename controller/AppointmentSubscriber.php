@@ -84,8 +84,8 @@ class AppointmentSubscriber implements EventSubscriberInterface
                         $comm_data['email'],
                         $this->patientcell
                     );
-            } elseif($checkExistingAppointment['event_date'] != $appointmentdata['form_date'] ||
-            $checkExistingAppointment['time'] != $hour) {
+            } elseif($checkExistingAppointment['event_date'] != $appointmentdata['selected_date'] ||
+            $checkExistingAppointment['event_time'] != $hour) {
                 //update lifemesh if time or date of the appointment has changed
                 $reschedule_session = new AppDispatch();
                 $reschedule_session->rescheduleSession(

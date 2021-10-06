@@ -22,6 +22,8 @@ if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token"])) {
     CsrfUtils::csrfNotVerified();
 }
 
+// no acl check since this needs to be accessed by entire practice from calendar
+
 // check for existence and status of lifemesh account
 $container = new Container();
 $credentials =  $container->getDatabase()->getCredentials();

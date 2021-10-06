@@ -17,13 +17,7 @@ require_once dirname(__FILE__) . "/controller/AppointmentSubscriber.php";
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Events\Appointments\AppointmentRenderEvent;
 use OpenEMR\Modules\LifeMesh\Container;
-use Symfony\Component\EventDispatcher\Event;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Symfony\Component\EventDispatcher\GenericEvent;
 use OpenEMR\Modules\LifeMesh\AppointmentSubscriber;
-
-
-
 
 /**
  * @var EventDispatcherInterface $eventDispatcher
@@ -38,6 +32,7 @@ function oe_module_lifemesh_telehealth_render_javascript(AppointmentRenderEvent 
     $appt = $event->getAppt();
     $isSession = false;
     $isCancelled = false;
+    $isNotFound = false;
 
     if ((!empty($appt['pc_title'])) && (stristr($appt['pc_title'], 'telehealth'))) {
         $providersession =  ((new Container())->getDatabase())->getStoredSession($appt['pc_eid']);
@@ -47,32 +42,30 @@ function oe_module_lifemesh_telehealth_render_javascript(AppointmentRenderEvent 
             $code = $providersession['provider_code'];
             $uri = $providersession['provider_uri'];
         } else {
-            error_log('No Lifemesh telehealth session found for a calendar event');
+            $isNotFound = true;
+        }
+
+        if ($isSession && !$isCancelled) {
             ?>
-            alert(<?php echo xlj('No Lifemesh telehealth session found for this calendar event'); ?>);
-            <?php
-            return;
-        }
-
-        ?>
-        function cancel_telehealth() {
-            if (confirm(<?php echo xlj('Are you sure you want to cancel the Telehealth session?'); ?>)) {
-                document.getElementById("lifehealth-start").classList.remove("d-inline");
-                document.getElementById("lifehealth-start").classList.add("d-none");
-                document.getElementById("lifehealth-cancel").classList.remove("d-inline");
-                document.getElementById("lifehealth-cancel").classList.add("d-none");
-                document.getElementById("lifehealth-cancel-text").classList.remove("d-none");
-                document.getElementById("lifehealth-cancel-text").classList.add("d-inline");
-                let title = <?php echo xlj('Cancel Telehealth Appt'); ?>;
-                let eid = <?php echo js_escape($appt['pc_eid']); ?>;
-                dlgopen('../../modules/custom_modules/oe-module-lifemesh-telehealth/cancel_telehealth_session.php?eid=' + encodeURIComponent(eid), '', 650, 300, '', title);
+            function cancel_telehealth() {
+                if (confirm(<?php echo xlj('Are you sure you want to cancel the Telehealth session?'); ?>)) {
+                    document.getElementById("lifehealth-start").classList.remove("d-inline");
+                    document.getElementById("lifehealth-start").classList.add("d-none");
+                    document.getElementById("lifehealth-cancel").classList.remove("d-inline");
+                    document.getElementById("lifehealth-cancel").classList.add("d-none");
+                    document.getElementById("lifehealth-cancel-text").classList.remove("d-none");
+                    document.getElementById("lifehealth-cancel-text").classList.add("d-inline");
+                    let title = <?php echo xlj('Cancel Telehealth Appt'); ?>;
+                    let eid = <?php echo js_escape($appt['pc_eid']); ?>;
+                    dlgopen('../../modules/custom_modules/oe-module-lifemesh-telehealth/cancel_telehealth_session.php?eid=' + encodeURIComponent(eid) + '&csrf_token=' + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>, '', 650, 300, '', title);
+                }
             }
-        }
 
-        function startSession() {
-            window.open(<?php echo js_escape($uri); ?>, '_blank', 'location=yes');
+            function startSession() {
+                window.open(<?php echo js_escape($uri); ?>, '_blank', 'location=yes');
+            }
+            <?php
         }
-        <?php
     }
 
     ?>
@@ -101,6 +94,9 @@ function oe_module_lifemesh_telehealth_render_javascript(AppointmentRenderEvent 
                 <?php } else if ($isSession && $isCancelled) { ?>
                     document.getElementById("lifehealth-cancel-text").classList.remove("d-none");
                     document.getElementById("lifehealth-cancel-text").classList.add("d-inline");
+                <?php } else if ($isNotFound) { ?>
+                    document.getElementById("lifehealth-notfound-text").classList.remove("d-none");
+                    document.getElementById("lifehealth-notfound-text").classList.add("d-inline");
                 <?php } ?>
             } else { // data.status == 'no'
                 document.getElementById("lifemesh-logo").classList.remove("bg-info");
@@ -140,6 +136,7 @@ function oe_module_lifemesh_telehealth_render_below_patient(AppointmentRenderEve
             <button type="button" class="ml-4 btn btn-primary gray-background white d-none" id="lifehealth-start" onclick="startSession()"><?php echo xlt("Start Session"); ?></button>
             <button type="button" class="ml-2 btn btn-primary gray-background white d-none" id="lifehealth-cancel" onclick="cancel_telehealth()"><?php echo xlt("Cancel Telehealth"); ?></button>
             <span id="lifehealth-cancel-text" class="text-left ml-4 d-none"><?php echo xlt("This Telehealth session has been cancelled."); ?></span>
+            <span id="lifehealth-notfound-text" class="text-left ml-4 d-none"><?php echo xlt("No Telehealth session was found for this appointment."); ?></span>
         </div>
     </div>
     <?php
