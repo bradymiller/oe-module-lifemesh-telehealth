@@ -83,7 +83,7 @@ $setup = '../moduleConfig.php';
         <?php if ($j_data['status'] == "active") { ?>
             <p>Do you want to cancel your subscription? <button class="btn btn-primary" onclick="cancelSubscription()">Click Here</button></p>
         <?php } else { ?>
-            <p>Don't have an active subscription? <a class="btn btn-primary" href="../stripe/client/service.php" target="_blank">Click Here</a></p>
+            <p>Don't have an active subscription? <a class="btn btn-primary" href="../stripe/server/create-checkout-session.php" target="_blank">Click Here</a></p>
         <?php } ?>
         <p>Sign out <button class="btn btn-primary" onclick="signOut()">Click Here</button></p>
     </div>
