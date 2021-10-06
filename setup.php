@@ -114,7 +114,7 @@ if (!empty($accounthaslogin['username'])) {
 </head>
 <body>
 <div class="container">
-    <img src="images/lifemesh_logo.png"></img>
+    <img src="account/images/lifemesh_logo.png"></img>
 
     <div class="button1">
         <a id="theloginbutton" href="account/index.php"><button id="login" class="btnlogin">Login</button></a>
