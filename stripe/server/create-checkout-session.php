@@ -14,38 +14,13 @@ $ignoreAuth = true;
 // Set $sessionAllowWrite to true to prevent session concurrency issues during authorization related code
 $sessionAllowWrite = true;
 
-require_once "../../../../../globals.php";
-require '../../vendor/autoload.php';
+require_once dirname(__FILE__, 6) . "/globals.php";
+require_once dirname(__FILE__, 3) . '/vendor/autoload.php';
 
-use Stripe\Checkout\Session;
-use Stripe\Stripe;
+use OpenEMR\Modules\LifeMesh\Container;
 
-$dotenv = Dotenv\Dotenv::createImmutable( __DIR__);
-try {
-    //ENV array is being loaded into c
-    $dotenv->load();
-} catch ( Exception $e ) {
-    echo $e->getMessage();
-}
+$createCheckout = new Container();
 
-// For sample support and debugging. Not required for production:
-Stripe::setAppInfo(
-    "Lifemesh OpenEMR Module for Telehealth",
-    "0.0.3",
-    "https://lifemesh.com"
-);
-
-Stripe::setApiKey($_ENV['STRIPE_SECRET_KEY']);
-if (!isset($_SERVER['HTTPS'])) {
-    $urlpart_http = "http://";
-} else {
-    $urlpart_http = "https://";
-}
-
-if ($_SERVER['REQUEST_METHOD'] != 'POST') {
-    echo 'Invalid request';
-    exit;
-}
 
 // Create new Checkout Session for the order
 // Other optional params include:
@@ -56,16 +31,10 @@ if ($_SERVER['REQUEST_METHOD'] != 'POST') {
 // For full details see https://stripe.com/docs/api/checkout/sessions/create
 
 // ?session_id={CHECKOUT_SESSION_ID} means the redirect will have the session ID set as a query param
-$checkout_session = Session::create([
-    'success_url' => $urlpart_http . $_SERVER[HTTP_HOST] . '/' . $GLOBALS['webroot'] . '/interface/modules/custom_modules/oe-module-lifemesh-telehealth/stripe/server/success?session_id={CHECKOUT_SESSION_ID}',
-    'cancel_url' => $urlpart_http . $_SERVER[HTTP_HOST] . '/' . $GLOBALS['webroot'] . '/canceled.php',
-    'payment_method_types' => ['card'],
-    'mode' => 'subscription',
-    'line_items' => [[
-        'price' => $_POST['priceId'],
-        //'quantity' => 1,
-    ]]
-]);
+$checkout_session = $createCheckout->getAppDispatch()->getStripeUrl('createCheckoutSessionUrl');
+
+$checkout_session_url = json_decode($checkout_session);
+$url = get_object_vars($checkout_session_url);
 
 header("HTTP/1.1 303 See Other");
-header("Location: " . $checkout_session->url);
+header("Location: " . $url['checkout_url'] );
