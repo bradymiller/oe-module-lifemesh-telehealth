@@ -114,12 +114,13 @@ if (!empty($accounthaslogin['username'])) {
 </head>
 <body>
 <div class="container">
-    <h3>Lifemesh</h3>
+    <img src="images/lifemesh_logo.png"></img>
+
     <div class="button1">
         <a id="theloginbutton" href="account/index.php"><button id="login" class="btnlogin">Login</button></a>
     </div>
     <div class="button2">
-        <a id="thesubscribebutton" href="stripe/client/service.php" target="_blank"><button id="subscribe" class="btnsubscribe">Subscribe</button></a>
+        <a id="thesubscribebutton" href="stripe/server/create-checkout-session.php" target="_blank"><button id="subscribe" class="btnsubscribe">Subscribe</button></a>
     </div>
 </div>
 </body>

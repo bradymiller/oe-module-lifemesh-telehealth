@@ -355,6 +355,35 @@ class AppDispatch
         }
     }
 
+    public function getStripeUrl($url)
+    {
+        $curl = curl_init();
+
+        curl_setopt_array($curl, array(
+            CURLOPT_URL => $this->setUrl($url),
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => '',
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 0,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => 'POST',
+            CURLOPT_POSTFIELDS =>'{
+    "user_email":"dpham@lifemesh.ai",
+    "success_url":"http://localhost:8500/interface/modules/custom_modules/oe-module-lifemesh-telehealth/stripe/client/success.php",
+    "cancel_url":"http://localhost:8500/interface/modules/custom_modules/oe-module-lifemesh-telehealth/stripe/client/cancel.php"
+}',
+            CURLOPT_HTTPHEADER => array(
+                'Content-Type: application/json'
+            ),
+        ));
+
+        $response = curl_exec($curl);
+
+        curl_close($curl);
+        return $response;
+    }
+
     /**
      * @param $value
      * @return string|null
@@ -383,6 +412,9 @@ class AppDispatch
 
             case "cancelSubscription":
                 return "https://api.telehealth.lifemesh.ai/cancel_subscription";
+
+            case "createCheckoutSessionUrl":
+                return "https://api.telehealth.lifemesh.ai/create_checkout_session_url";
 
             default:
                 return NULL;
