@@ -50,7 +50,6 @@ class AppDispatch
         $curl = curl_init();
         curl_setopt($curl, CURLOPT_URL, $this->setUrl($url)); //dynamically set the url for the api request
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($curl, CURLOPT_HEADER, true);
         curl_setopt($curl, CURLOPT_MAXREDIRS, 10);
         curl_setopt($curl, CURLOPT_ENCODING, '');
         curl_setopt($curl, CURLOPT_AUTOREFERER, true);

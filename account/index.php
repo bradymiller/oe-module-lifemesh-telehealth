@@ -12,7 +12,14 @@
  */
 
 require_once "../../../../globals.php";
+
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+
+if (!AclMain::aclCheckCore('admin', 'manage_modules')) {
+    echo xlt('Not Authorized');
+    exit;
+}
 
 ?>
 <!DOCTYPE html>
