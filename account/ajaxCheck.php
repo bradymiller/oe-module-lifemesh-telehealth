@@ -22,6 +22,9 @@ if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token"])) {
     CsrfUtils::csrfNotVerified();
 }
 
+// set if will be checking to see if patient is already signed into session
+$eid = $_POST['eid'] ?? null;
+
 // no acl check since this needs to be accessed by entire practice from calendar
 
 // check for existence and status of lifemesh account
@@ -38,6 +41,14 @@ if ($isCredentials) {
     } else {
         $status['status'] = "ok";
         $status['statusMessage'] = "OK";
+        if (!empty($eid)) {
+            $patientCheckSignon = $app->apiCheckPatientStatus($credentials[1], $credentials[0], 'checkPatientStatus');
+            if (!empty($patientCheckSignon) && ($patientCheckSignon['patient_accessed_session'] == "true")) {
+                $status['patientSignon'] = "yes";
+            } else{
+                $status['patientSignon'] = "no";
+            }
+        }
     }
 } else {
     $status['status'] = "no";
