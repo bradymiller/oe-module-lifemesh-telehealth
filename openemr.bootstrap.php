@@ -126,10 +126,9 @@ function oe_module_lifemesh_telehealth_render_javascript(AppointmentRenderEvent 
                     if (data.patientSignon == 'yes') {
                         document.getElementById("lifehealth-patient-on").classList.remove("d-none");
                         document.getElementById("lifehealth-patient-on").classList.add("d-block");
-                    } else {
-                        // Poll to see if patient has signed on every 20 seconds.
-                        setInterval(pollPatientSignon, 20000);
                     }
+                    // Poll to see if patient has signed on (or signed off) every 20 seconds.
+                    setInterval(pollPatientSignon, 20000);
                 <?php } else if ($isSession && $isCancelled) { ?>
                     document.getElementById("lifehealth-cancel-text").classList.remove("d-none");
                     document.getElementById("lifehealth-cancel-text").classList.add("d-inline");
