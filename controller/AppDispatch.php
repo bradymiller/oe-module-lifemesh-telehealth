@@ -13,6 +13,7 @@
 namespace OpenEMR\Modules\LifeMesh;
 
 use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\Common\Uuid\UniqueInstallationUuid;
 
 /**
  * Class AppDispatch
@@ -385,6 +386,51 @@ class AppDispatch
     }
 
     /**
+     * @param $username
+     * @param $password
+     * @param $eventid
+     */
+    public function apiCheckPatientStatus($username, $password, $eventid)
+    {
+        $data = base64_encode($username . ':' . $password);
+        $header = [
+            'Authorization: Basic ' . $data,
+            'Content-Type: application/json'
+        ];
+        $curl = curl_init();
+
+        curl_setopt_array($curl, array(
+            CURLOPT_URL => $this->setUrl("checkPatientStatus"),
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_AUTOREFERER    => true,
+            CURLOPT_ENCODING => '',
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 120,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => 'POST',
+            CURLOPT_POSTFIELDS =>'{
+                "caller_id":"' . UniqueInstallationUuid::getUniqueInstallationUuid() . '",
+                "appointment_id":"' . $eventid . '"
+            }',
+            CURLOPT_HTTPHEADER => $header
+        ));
+        // For debug, can send following parameter to force a "true" (note it returns strings and not booleans) :
+        //  "force_true_response":"true"
+
+        $response = curl_exec($curl);
+        $status = curl_getinfo($curl, CURLINFO_RESPONSE_CODE);
+        curl_close($curl);
+
+        if ($status == 200) {
+            return json_decode($response, true);
+        } else {
+            return false;
+        }
+
+    }
+
+    /**
      * @param $value
      * @return string|null
      * set URL values based on the call to action
@@ -415,6 +461,9 @@ class AppDispatch
 
             case "createCheckoutSessionUrl":
                 return "https://api.telehealth.lifemesh.ai/create_checkout_session_url";
+
+            case "checkPatientStatus":
+                return "https://api.telehealth.lifemesh.ai/check_session_patient_status";
 
             default:
                 return NULL;

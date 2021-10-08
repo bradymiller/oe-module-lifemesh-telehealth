@@ -64,6 +64,35 @@ function oe_module_lifemesh_telehealth_render_javascript(AppointmentRenderEvent 
             function startSession() {
                 window.open(<?php echo js_escape($uri); ?>, '_blank', 'location=yes');
             }
+
+            function pollPatientSignon() {
+                let lifemeshDataPoll = new FormData();
+                lifemeshDataPoll.append("csrf_token", <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>);
+                lifemeshDataPoll.append("eid", <?php echo js_escape($appt['pc_eid']); ?>);
+                lifemeshDataPoll.append("skip_timeout_reset", 1);
+                fetch('<?php echo $GLOBALS['webroot']; ?>/interface/modules/custom_modules/oe-module-lifemesh-telehealth/account/ajaxPoll.php', {
+                    credentials: 'same-origin',
+                    method: 'POST',
+                    body: lifemeshDataPoll
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.patientSignon == 'yes') {
+                        if (document.getElementById("lifehealth-patient-on").classList.contains("d-none")) {
+                            document.getElementById("lifehealth-patient-on").classList.remove("d-none");
+                            document.getElementById("lifehealth-patient-on").classList.add("d-block");
+                        }
+                    } else {
+                        if (document.getElementById("lifehealth-patient-on").classList.contains("d-block")) {
+                            document.getElementById("lifehealth-patient-on").classList.remove("d-block");
+                            document.getElementById("lifehealth-patient-on").classList.add("d-none");
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('There has been a problem with your lifemesh patient poll operation:', error);
+                });
+            }
             <?php
         }
     }
@@ -71,6 +100,9 @@ function oe_module_lifemesh_telehealth_render_javascript(AppointmentRenderEvent 
     ?>
     let lifemeshData = new FormData();
     lifemeshData.append("csrf_token", <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>);
+    <?php if ($isSession && !$isCancelled) { ?>
+        lifemeshData.append("eid", <?php echo js_escape($appt['pc_eid']); ?>);
+    <?php } ?>
     document.addEventListener("DOMContentLoaded", function(){
         fetch('<?php echo $GLOBALS['webroot']; ?>/interface/modules/custom_modules/oe-module-lifemesh-telehealth/account/ajaxCheck.php', {
             credentials: 'same-origin',
@@ -91,6 +123,13 @@ function oe_module_lifemesh_telehealth_render_javascript(AppointmentRenderEvent 
                     document.getElementById("lifehealth-start").classList.add("d-inline");
                     document.getElementById("lifehealth-cancel").classList.remove("d-none");
                     document.getElementById("lifehealth-cancel").classList.add("d-inline");
+                    if (data.patientSignon == 'yes') {
+                        document.getElementById("lifehealth-patient-on").classList.remove("d-none");
+                        document.getElementById("lifehealth-patient-on").classList.add("d-block");
+                    } else {
+                        // Poll to see if patient has signed on every 20 seconds.
+                        setInterval(pollPatientSignon, 20000);
+                    }
                 <?php } else if ($isSession && $isCancelled) { ?>
                     document.getElementById("lifehealth-cancel-text").classList.remove("d-none");
                     document.getElementById("lifehealth-cancel-text").classList.add("d-inline");
@@ -135,6 +174,9 @@ function oe_module_lifemesh_telehealth_render_below_patient(AppointmentRenderEve
             </div>
             <button type="button" class="ml-4 btn btn-primary gray-background white d-none" id="lifehealth-start" onclick="startSession()"><?php echo xlt("Start Session"); ?></button>
             <button type="button" class="ml-2 btn btn-primary gray-background white d-none" id="lifehealth-cancel" onclick="cancel_telehealth()"><?php echo xlt("Cancel Telehealth"); ?></button>
+            <div id="lifehealth-patient-on" class="d-none ml-4 mt-2">
+                <span class="text-left"><?php echo xlt("Your patient has signed into the Telehealth session."); ?></span>
+            </div>
             <span id="lifehealth-cancel-text" class="text-left ml-4 d-none"><?php echo xlt("This Telehealth session has been cancelled."); ?></span>
             <span id="lifehealth-notfound-text" class="text-left ml-4 d-none"><?php echo xlt("No Telehealth session was found for this appointment."); ?></span>
         </div>
