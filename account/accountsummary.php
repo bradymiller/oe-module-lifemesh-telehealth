@@ -92,7 +92,8 @@ $setup = '../moduleConfig.php';
             <p>Do you want to cancel your subscription? <button class="btn btn-primary" onclick="cancelSubscription()" style="background-color: #C24511; border-color: #C24511;">Click Here</button></p>
         <?php } else { ?>
             <form method="post" action="../stripe/server/create-checkout-session.php" target="_blank">
-                <input name="email" type="hidden" value="<?php echo text($getcredentals['username']); ?>"> 
+                <input type="hidden" name="csrf_token" value="<?php echo attr(CsrfUtils::collectCsrfToken('lifemesh')); ?>" />
+                <input name="email" type="hidden" value="<?php echo text($getcredentals['username']); ?>">
                 <p>Don't have an active subscription? <button class="btn btn-primary" style="background-color: #C24511; border-color: #C24511;">Click Here</button></p>
             </form>
         <?php } ?>
@@ -101,7 +102,7 @@ $setup = '../moduleConfig.php';
 </div>
 </body>
 <script>
-    const token = <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>;
+    const token = <?php echo js_escape(CsrfUtils::collectCsrfToken('lifemesh')); ?>;
     const reset_url = <?php echo js_escape($reset_cancel_url . '?acct=reset&token='); ?>;
     const cancel_url = <?php echo js_escape($reset_cancel_url . '?acct=cancel&token='); ?>;
     const url = <?php echo js_escape($url . '?token='); ?>;

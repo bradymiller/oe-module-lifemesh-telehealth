@@ -18,7 +18,7 @@ use OpenEMR\Modules\LifeMesh\Container;
 
 header('Content-type: application/json');
 
-if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token"])) {
+if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token"], 'lifemesh')) {
     CsrfUtils::csrfNotVerified();
 }
 

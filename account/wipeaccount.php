@@ -18,7 +18,7 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Modules\LifeMesh\Database;
 
-if (!CsrfUtils::verifyCsrfToken($_GET["token"])) {
+if (!CsrfUtils::verifyCsrfToken($_GET["token"], 'lifemesh')) {
     CsrfUtils::csrfNotVerified();
 }
 

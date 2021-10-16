@@ -463,7 +463,7 @@ class AppDispatch
 
             case "checkPatientStatus":
                 return "https://api.telehealth.lifemesh.ai/check_session_patient_status";
-                
+
             default:
                 return NULL;
         }
