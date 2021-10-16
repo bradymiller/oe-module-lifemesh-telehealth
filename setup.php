@@ -2,12 +2,12 @@
 
 /*
  *
- * @package      OpenEMR
- * @link               https://www.open-emr.org
+ * @package     OpenEMR Telehealth Module
+ * @link        https://lifemesh.ai/telehealth/
  *
- * @author    Sherwin Gaddis <sherwingaddis@gmail.com>
- * @copyright Copyright (c) 2021 Sherwin Gaddis <sherwingaddis@gmail.com>
- * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ * @author      Sherwin Gaddis <sherwingaddis@gmail.com>
+ * @copyright   Copyright (c) 2021 Lifemesh Corp <telehealth@lifemesh.ai>
+ * @license     GNU General Public License 3
  *
  */
 
@@ -36,91 +36,117 @@ if (!empty($accounthaslogin['username'])) {
 
 ?>
 <!DOCTYPE html>
-<head>
+<link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+<head style="text-align: center;">
     <?php Header::setupHeader(); ?>
     <meta charset="utf-8" />
-    <title>Telehealth Service</title>
+    <title>Lifemesh Telehealth Service</title>
     <style>
         .btnlogin {
-            background: #3498db;
-            background-image: -webkit-linear-gradient(top, #3498db, #2980b9);
-            background-image: -moz-linear-gradient(top, #3498db, #2980b9);
-            background-image: -ms-linear-gradient(top, #3498db, #2980b9);
-            background-image: -o-linear-gradient(top, #3498db, #2980b9);
-            background-image: linear-gradient(to bottom, #3498db, #2980b9);
-            -webkit-border-radius: 8px;
-            -moz-border-radius: 8px;
-            border-radius: 8px;
-            font-family: Arial;
+            background: #C24511;
+            border-radius: 10px;
+            font-family: 'Roboto', Arial;
             color: #ffffff;
-            font-size: 20px;
-            padding: 10px 20px 10px 18px;
+            font-size: 18px;
             text-decoration: none;
+
+            border: none;
+            padding: 10px;
+            margin: 15px 2px;
         }
 
         .btnlogin:hover {
-            background: #3cb0fd;
-            background-image: -webkit-linear-gradient(top, #3cb0fd, #3498db);
-            background-image: -moz-linear-gradient(top, #3cb0fd, #3498db);
-            background-image: -ms-linear-gradient(top, #3cb0fd, #3498db);
-            background-image: -o-linear-gradient(top, #3cb0fd, #3498db);
-            background-image: linear-gradient(to bottom, #3cb0fd, #3498db);
+            background: #A93D0F;
             text-decoration: none;
         }
 
         .btnsubscribe {
-            background: #3fe896;
-            background-image: -webkit-linear-gradient(top, #3fe896, #2bb85c);
-            background-image: -moz-linear-gradient(top, #3fe896, #2bb85c);
-            background-image: -ms-linear-gradient(top, #3fe896, #2bb85c);
-            background-image: -o-linear-gradient(top, #3fe896, #2bb85c);
-            background-image: linear-gradient(to bottom, #3fe896, #2bb85c);
-            -webkit-border-radius: 8px;
-            -moz-border-radius: 8px;
-            border-radius: 8px;
-            font-family: Arial;
+            background: #C24511;
+            border-radius: 10px;
+            font-family: 'Roboto', Arial;
             color: #ffffff;
-            font-size: 20px;
-            padding: 10px 20px 10px 18px;
+            font-size: 18px;
             text-decoration: none;
+
+            border: none;
+            padding: 10px;
+            margin: 4px 2px;
         }
 
         .btnsubscribe:hover {
-            background: #3cfcb6;
-            background-image: -webkit-linear-gradient(top, #3cfcb6, #34d976);
-            background-image: -moz-linear-gradient(top, #3cfcb6, #34d976);
-            background-image: -ms-linear-gradient(top, #3cfcb6, #34d976);
-            background-image: -o-linear-gradient(top, #3cfcb6, #34d976);
-            background-image: linear-gradient(to bottom, #3cfcb6, #34d976);
+            background: #A93D0F;
             text-decoration: none;
         }
 
-        .button1 {
-            padding: 1em;
-        }
-
-        .button2 {
-            padding: 1em;
-        }
         #login {
-            width: 250px;
+            width: 300px;
         }
 
         #subscribe {
-            width: 250px;
+            width: 300px;
         }
+
+        .container {
+            text-align: center; 
+            padding-top: 20px;
+        }
+
+        .page-content {
+            padding-left: 50px;
+            padding-right: 50px; 
+            padding-bottom: 50px;
+            /* padding-top: 100px; */
+            background: white;
+            border-radius: 15px;
+            width: 300px;
+            text-align: center;
+            display: inline-table; 
+
+            box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
+        }
+
+        .label_soft {
+            font-family: 'Roboto', Arial;
+            color: darkgrey;
+            font-size: 14px;
+        }
+
+        input[type=email] {
+            width:100%;
+            border:2px solid #aaa;
+            border-radius:10px;
+            margin:8px 0;
+            outline:none;
+            padding:8px;
+            box-sizing:border-box;
+            transition:.3s;
+        }
+        
 
     </style>
 </head>
-<body>
-<div class="container">
-    <img src="account/images/lifemesh_logo.png"></img>
+<body style="background-color: lightgray">
 
-    <div class="button1">
-        <a id="theloginbutton" href="account/index.php"><button id="login" class="btnlogin">Login</button></a>
-    </div>
-    <div class="button2">
-        <a id="thesubscribebutton" href="stripe/server/create-checkout-session.php" target="_blank"><button id="subscribe" class="btnsubscribe">Subscribe</button></a>
+<div class="container">
+    <div class="page-content">
+        <img src="account/images/lifemesh_logo.png" style="padding-top: 25px; padding-bottom: 10px; width: 300px;"></img>
+
+        <div class="button1">
+            <a id="theloginbutton" href="account/index.php"><button id="login" class="btnlogin">Login</button></a>
+        </div>
+        
+        <div style="padding-bottom: 15px; padding-top: 10px">
+            <label class="label_soft">Don't have an account?<br/>Create a Telehealth subscription below</label>
+        </div>
+        <form class="login100-form validate-form flex-sb flex-w" method="post" action="stripe/server/create-checkout-session.php" id="lifemesh-form" target="_blank">
+            <div class="wrap-input100 validate-input m-b-16" data-validate = "Your e-mail is required">
+                <input id="input_textbox" type="email" name="email" placeholder="Enter your e-mail here" required>
+            </div>
+
+            <div class="button2">
+                <button class="btnsubscribe" id="subscribe">Subscribe</button>
+            </div>
+        </form>
     </div>
 </div>
 </body>

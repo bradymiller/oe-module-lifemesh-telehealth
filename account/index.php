@@ -2,12 +2,12 @@
 
 /*
  *
- * @package      OpenEMR
- * @link               https://www.open-emr.org
+ * @package     OpenEMR Telehealth Module
+ * @link        https://lifemesh.ai/telehealth/
  *
- * @author    Sherwin Gaddis <sherwingaddis@gmail.com>
- * @copyright Copyright (c) 2021 Sherwin Gaddis <sherwingaddis@gmail.com>
- * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ * @author      Sherwin Gaddis <sherwingaddis@gmail.com>
+ * @copyright   Copyright (c) 2021 Lifemesh Corp <telehealth@lifemesh.ai>
+ * @license     GNU General Public License 3
  *
  */
 
@@ -52,6 +52,7 @@ if (!AclMain::aclCheckCore('admin', 'manage_modules')) {
 <!--===============================================================================================-->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script src="js/script.js"></script>
+    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
     <style>
         form input {
             margin-top: 5px;
@@ -120,13 +121,34 @@ if (!AclMain::aclCheckCore('admin', 'manage_modules')) {
             }
         }
 
+        #text_soft {
+            font-family: 'Roboto', Arial;
+            padding-top: 20px;
+        }
+
+        #button_login {
+            background: #C24511;
+            font-family: 'Roboto', Arial;
+            font-size: 18px;
+        }
+
+        #wrapper_login {
+            width: 400px;
+            background: white;
+            border-radius: 15px;
+            padding-top: 50px;
+            padding-bottom: 40px;
+            padding-left: 60px;
+            padding-right: 60px;
+        }
+
     </style>
 </head>
-<body>
+<body style="background-color: lightgray">
 
 	<div class="limiter">
 		<div class="container-login100">
-			<div class="wrap-login100 p-t-50 p-b-90">
+            <div id="wrapper_login">
 				<form class="login100-form validate-form flex-sb flex-w" method="post" action="accountcheck.php" id="lifemesh-form">
                     <input type="hidden" name="csrf_token" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>">
 					<div class="wrap-input100 validate-input m-b-16" data-validate = "Username is required">
@@ -140,10 +162,10 @@ if (!AclMain::aclCheckCore('admin', 'manage_modules')) {
 					</div>
 
 					<div class="container-login100-form-btn m-t-17">
-						<button class="login100-form-btn">
+						<button class="login100-form-btn" id="button_login">
 							Login
 						</button>
-                        <p>Having trouble signing in?<br> Let us know at telehealth@lifemesh.ai</p>
+                        <p id="text_soft">Having trouble signing in?<br> Let us know at telehealth@lifemesh.ai</p>
 					</div>
                     <div id="lock-modal"></div>
                     <div id="loading-circle"></div>

@@ -2,12 +2,12 @@
 
 /*
  *
- * @package      OpenEMR
- * @link               https://www.open-emr.org
+ * @package     OpenEMR Telehealth Module
+ * @link        https://lifemesh.ai/telehealth/
  *
- * @author    Sherwin Gaddis <sherwingaddis@gmail.com>
- * @copyright Copyright (c) 2021 Sherwin Gaddis <sherwingaddis@gmail.com>
- * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ * @author      Sherwin Gaddis <sherwingaddis@gmail.com>
+ * @copyright   Copyright (c) 2021 Lifemesh Corp <telehealth@lifemesh.ai>
+ * @license     GNU General Public License 3
  *
  */
 
@@ -70,22 +70,33 @@ $setup = '../moduleConfig.php';
     </div>
     <div id="plans">
         <p><strong>Telehealth Pricing Tiers</strong><br>
-        First 100 Telehealth Sessions costs $99.00<br>
-        Next 101 - 200 costs $119.00<br>
-        Next 201 - 300 costs $159.00<br>
-        Next 301 - 500 costs $279.00<br>
-        Next 501 - 750 costs $249.00<br>
-        Next 751 sessions and beyond costs $0.75/session</p>
+        Our pricing starts at US$99.00 for the first 50 Telehealth sessions.<br>
+        Every subsequent bundle of 50 sessions will be charged with a US$5.00 <br>
+        discount until a maximum discount of US$50.00 is reached. For example, <br>
+        a monthly usage of 121 sessions would cost US$282.00 (eg. US$99.00 + <br>
+        US$94.00 + US$89.00).<br>
+        <br>
+        First 50 Telehealth Sessions costs $99.00<br>
+        Next 51 - 100 costs USD$94.00<br>
+        Next 101 - 150 costs USD$89.00<br>
+        ...<br>
+        Next 451 - 500 costs USD$54.00<br>
+        Next 501 - 550 costs USD$50.00<br>
+        Next 551 - 600 costs USD$50.00<br>
+        etc.</p>
     </div>
     <div id="acctmgr">
-        <p></p>
-        <p>Reset account password <button class="btn btn-primary" onclick="resetPassword()">Click Here</button></p>
+        <p><strong>Account Management</strong><br>
+        <p>Do you want to reset your account password? <button class="btn btn-primary" onclick="resetPassword()" style="background-color: #C24511; border-color: #C24511;">Click Here</button></p>
         <?php if ($j_data['status'] == "active") { ?>
-            <p>Do you want to cancel your subscription? <button class="btn btn-primary" onclick="cancelSubscription()">Click Here</button></p>
+            <p>Do you want to cancel your subscription? <button class="btn btn-primary" onclick="cancelSubscription()" style="background-color: #C24511; border-color: #C24511;">Click Here</button></p>
         <?php } else { ?>
-            <p>Don't have an active subscription? <a class="btn btn-primary" href="../stripe/server/create-checkout-session.php" target="_blank">Click Here</a></p>
+            <form method="post" action="../stripe/server/create-checkout-session.php" target="_blank">
+                <input name="email" type="hidden" value="<?php echo text($getcredentals['username']); ?>"> 
+                <p>Don't have an active subscription? <button class="btn btn-primary" style="background-color: #C24511; border-color: #C24511;">Click Here</button></p>
+            </form>
         <?php } ?>
-        <p>Sign out <button class="btn btn-primary" onclick="signOut()">Click Here</button></p>
+        <p>Do you want to sign out? <button class="btn btn-primary" onclick="signOut()" style="background-color: #C24511; border-color: #C24511;">Click Here</button></p>
     </div>
 </div>
 </body>
@@ -104,12 +115,12 @@ $setup = '../moduleConfig.php';
                 url: url + encodeURIComponent(token),
                 type: 'GET',
                 success: function (response) {
-                    alert('Account Cancellation Complete');
+                    alert('Your current subscription was successfully cancelled. Please note that while your current subscription status is no longer active, you can still use the Telehealth service until the end of this billing cycle. Additionally, your account credentials are still valid should you wish to start a new subscription.');
                     window.location = redirect;
                 }
             })
         } else {
-            alert('Account cancellation failed ' + result);
+            alert('Your request to cancel your account has failed: ' + result);
         }
     }
 
@@ -118,7 +129,7 @@ $setup = '../moduleConfig.php';
             url: url + encodeURIComponent(token),
             type: 'GET',
             success: function (response) {
-                alert('Account Sign out Complete');
+                alert('You have successfully signed out of your Telehealth account.');
                 window.location = redirect;
             }
         })
@@ -132,7 +143,7 @@ $setup = '../moduleConfig.php';
                     url: url + encodeURIComponent(token),
                     type: 'GET',
                     success:function(response){
-                        alert('Close account page and check your email for new password');
+                        alert('Please close this account page and check your email for the new password.');
                     window.location = redirect;
                     }
                 })
