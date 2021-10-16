@@ -17,7 +17,7 @@ require_once "controller/Container.php";
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Uuid\UniqueInstallationUuid;
 
-if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token"])) {
+if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token"], 'lifemesh')) {
     CsrfUtils::csrfNotVerified();
 }
 

@@ -57,7 +57,7 @@ function oe_module_lifemesh_telehealth_render_javascript(AppointmentRenderEvent 
                     document.getElementById("lifehealth-cancel-text").classList.add("d-inline");
                     let title = <?php echo xlj('Cancel Telehealth Appt'); ?>;
                     let eid = <?php echo js_escape($appt['pc_eid']); ?>;
-                    dlgopen('../../modules/custom_modules/oe-module-lifemesh-telehealth/cancel_telehealth_session.php?eid=' + encodeURIComponent(eid) + '&csrf_token=' + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>, '', 650, 300, '', title);
+                    dlgopen('../../modules/custom_modules/oe-module-lifemesh-telehealth/cancel_telehealth_session.php?eid=' + encodeURIComponent(eid) + '&csrf_token=' + <?php echo js_url(CsrfUtils::collectCsrfToken('lifemesh')); ?>, '', 650, 300, '', title);
                 }
             }
 
@@ -67,7 +67,7 @@ function oe_module_lifemesh_telehealth_render_javascript(AppointmentRenderEvent 
 
             function pollPatientSignon() {
                 let lifemeshDataPoll = new FormData();
-                lifemeshDataPoll.append("csrf_token", <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>);
+                lifemeshDataPoll.append("csrf_token", <?php echo js_escape(CsrfUtils::collectCsrfToken('lifemesh')); ?>);
                 lifemeshDataPoll.append("eid", <?php echo js_escape($appt['pc_eid']); ?>);
                 lifemeshDataPoll.append("skip_timeout_reset", 1);
                 fetch('<?php echo $GLOBALS['webroot']; ?>/interface/modules/custom_modules/oe-module-lifemesh-telehealth/account/ajaxPoll.php', {
@@ -99,7 +99,7 @@ function oe_module_lifemesh_telehealth_render_javascript(AppointmentRenderEvent 
 
     ?>
     let lifemeshData = new FormData();
-    lifemeshData.append("csrf_token", <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>);
+    lifemeshData.append("csrf_token", <?php echo js_escape(CsrfUtils::collectCsrfToken('lifemesh')); ?>);
     <?php if ($isSession && !$isCancelled) { ?>
         lifemeshData.append("eid", <?php echo js_escape($appt['pc_eid']); ?>);
     <?php } ?>

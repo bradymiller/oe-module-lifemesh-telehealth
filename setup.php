@@ -141,7 +141,7 @@ if (!empty($accounthaslogin['username'])) {
         </div>
         <form class="login100-form validate-form flex-sb flex-w" method="post" action="stripe/server/create-checkout-session.php" id="lifemesh-form" target="_blank">
             <div class="wrap-input100 validate-input m-b-16" data-validate = "Your e-mail is required">
-                <input type="hidden" name="csrf_token" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+                <input type="hidden" name="csrf_token" value="<?php echo attr(CsrfUtils::collectCsrfToken('lifemesh')); ?>" />
                 <input id="input_textbox" type="email" name="email" placeholder="Enter your e-mail here" required>
             </div>
 

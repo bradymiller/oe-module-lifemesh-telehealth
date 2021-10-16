@@ -150,7 +150,7 @@ if (!AclMain::aclCheckCore('admin', 'manage_modules')) {
 		<div class="container-login100">
             <div id="wrapper_login">
 				<form class="login100-form validate-form flex-sb flex-w" method="post" action="accountcheck.php" id="lifemesh-form">
-                    <input type="hidden" name="csrf_token" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>">
+                    <input type="hidden" name="csrf_token" value="<?php echo attr(CsrfUtils::collectCsrfToken('lifemesh')); ?>">
 					<div class="wrap-input100 validate-input m-b-16" data-validate = "Username is required">
 						<input class="input100" type="text" name="username" placeholder="Username">
 						<span class="focus-input100"></span>
