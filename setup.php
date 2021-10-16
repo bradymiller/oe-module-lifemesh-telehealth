@@ -15,6 +15,7 @@ require_once "../../../globals.php";
 require_once dirname(__FILE__)."/controller/Container.php";
 
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\Modules\LifeMesh\Container;
 
@@ -87,20 +88,20 @@ if (!empty($accounthaslogin['username'])) {
         }
 
         .container {
-            text-align: center; 
+            text-align: center;
             padding-top: 20px;
         }
 
         .page-content {
             padding-left: 50px;
-            padding-right: 50px; 
+            padding-right: 50px;
             padding-bottom: 50px;
             /* padding-top: 100px; */
             background: white;
             border-radius: 15px;
             width: 300px;
             text-align: center;
-            display: inline-table; 
+            display: inline-table;
 
             box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
         }
@@ -121,7 +122,7 @@ if (!empty($accounthaslogin['username'])) {
             box-sizing:border-box;
             transition:.3s;
         }
-        
+
 
     </style>
 </head>
@@ -134,12 +135,13 @@ if (!empty($accounthaslogin['username'])) {
         <div class="button1">
             <a id="theloginbutton" href="account/index.php"><button id="login" class="btnlogin">Login</button></a>
         </div>
-        
+
         <div style="padding-bottom: 15px; padding-top: 10px">
             <label class="label_soft">Don't have an account?<br/>Create a Telehealth subscription below</label>
         </div>
         <form class="login100-form validate-form flex-sb flex-w" method="post" action="stripe/server/create-checkout-session.php" id="lifemesh-form" target="_blank">
             <div class="wrap-input100 validate-input m-b-16" data-validate = "Your e-mail is required">
+                <input type="hidden" name="csrf_token" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
                 <input id="input_textbox" type="email" name="email" placeholder="Enter your e-mail here" required>
             </div>
 

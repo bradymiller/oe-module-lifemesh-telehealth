@@ -14,7 +14,18 @@
 require_once dirname(__FILE__, 6) . "/globals.php";
 require_once dirname(__FILE__, 3) . "/controller/Container.php";
 
+use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Modules\LifeMesh\Container;
+
+if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token"])) {
+    CsrfUtils::csrfNotVerified();
+}
+
+if (!AclMain::aclCheckCore('admin', 'manage_modules')) {
+    echo xlt('Not Authorized');
+    exit;
+}
 
 $createCheckout = new Container();
 

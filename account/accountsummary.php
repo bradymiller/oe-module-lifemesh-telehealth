@@ -92,7 +92,8 @@ $setup = '../moduleConfig.php';
             <p>Do you want to cancel your subscription? <button class="btn btn-primary" onclick="cancelSubscription()" style="background-color: #C24511; border-color: #C24511;">Click Here</button></p>
         <?php } else { ?>
             <form method="post" action="../stripe/server/create-checkout-session.php" target="_blank">
-                <input name="email" type="hidden" value="<?php echo text($getcredentals['username']); ?>"> 
+                <input type="hidden" name="csrf_token" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+                <input name="email" type="hidden" value="<?php echo text($getcredentals['username']); ?>">
                 <p>Don't have an active subscription? <button class="btn btn-primary" style="background-color: #C24511; border-color: #C24511;">Click Here</button></p>
             </form>
         <?php } ?>
