@@ -1,12 +1,13 @@
 <?php
 
 /*
- * @package      OpenEMR
- * @link               https://www.open-emr.org
  *
- * @author    Sherwin Gaddis <sherwingaddis@gmail.com>
- * @copyright Copyright (c) 2021 Sherwin Gaddis <sherwingaddis@gmail.com>
- * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ * @package     OpenEMR Telehealth Module
+ * @link        https://lifemesh.ai/telehealth/
+ *
+ * @author      Sherwin Gaddis <sherwingaddis@gmail.com>
+ * @copyright   Copyright (c) 2021 Lifemesh Corp <telehealth@lifemesh.ai>
+ * @license     GNU General Public License 3
  *
  */
 
@@ -70,11 +71,11 @@ class AppDispatch
                 return true;
             } else {
                 if ($status === 261) {
-                    $statusMessage = "Subscription is not active. Please contact Lifemesh";
+                    $statusMessage = "Please note your subscription is not active. You will not be able to schedule a Telehealth session or initiate the session from inside OpenEMR.";
                 } else if ($status === 401) {
-                    $statusMessage = "An Error occurred. Username or Password is incorrect. Please contact Lifemesh";
+                    $statusMessage = "Please try again. Your user name or password is incorrect. You can contact Lifemesh at telehealth@lifemesh.ai for further support.";
                 } else {
-                    $statusMessage = "An Error occurred. Please contact Lifemesh";
+                    $statusMessage = "An error has occurred. Please contact Lifemesh at telehealth@lifemesh.ai for further support with a description to reproduce this error.";
                 }
                 $this->statusMessage = $statusMessage;
                 return false;
@@ -356,7 +357,7 @@ class AppDispatch
         }
     }
 
-    public function getStripeUrl($url)
+    public function getStripeUrl($url, $email)
     {
         $curl = curl_init();
 
@@ -370,10 +371,8 @@ class AppDispatch
             CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
             CURLOPT_CUSTOMREQUEST => 'POST',
             CURLOPT_POSTFIELDS =>'{
-    "user_email":"dpham@lifemesh.ai",
-    "success_url":"http://localhost:8500/interface/modules/custom_modules/oe-module-lifemesh-telehealth/stripe/client/success.php",
-    "cancel_url":"http://localhost:8500/interface/modules/custom_modules/oe-module-lifemesh-telehealth/stripe/client/cancel.php"
-}',
+                "user_email": "' . $email . '"
+            }',
             CURLOPT_HTTPHEADER => array(
                 'Content-Type: application/json'
             ),
@@ -464,7 +463,7 @@ class AppDispatch
 
             case "checkPatientStatus":
                 return "https://api.telehealth.lifemesh.ai/check_session_patient_status";
-
+                
             default:
                 return NULL;
         }

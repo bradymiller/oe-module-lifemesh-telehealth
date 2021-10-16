@@ -1,12 +1,13 @@
 <?php
+
 /*
  *
- * @package      OpenEMR
- * @link               https://www.open-emr.org
+ * @package     OpenEMR Telehealth Module
+ * @link        https://lifemesh.ai/telehealth/
  *
- * @author    Sherwin Gaddis <sherwingaddis@gmail.com>
- * @copyright Copyright (c) 2021 Sherwin Gaddis <sherwingaddis@gmail.com>
- * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ * @author      Sherwin Gaddis <sherwingaddis@gmail.com>
+ * @copyright   Copyright (c) 2021 Lifemesh Corp <telehealth@lifemesh.ai>
+ * @license     GNU General Public License 3
  *
  */
 
@@ -20,7 +21,7 @@ require_once dirname(__FILE__, 3) . '/vendor/autoload.php';
 use OpenEMR\Modules\LifeMesh\Container;
 
 $createCheckout = new Container();
-
+$email = $_POST['email'];
 
 // Create new Checkout Session for the order
 // Other optional params include:
@@ -31,7 +32,7 @@ $createCheckout = new Container();
 // For full details see https://stripe.com/docs/api/checkout/sessions/create
 
 // ?session_id={CHECKOUT_SESSION_ID} means the redirect will have the session ID set as a query param
-$checkout_session = $createCheckout->getAppDispatch()->getStripeUrl('createCheckoutSessionUrl');
+$checkout_session = $createCheckout->getAppDispatch()->getStripeUrl('createCheckoutSessionUrl', $email);
 
 $checkout_session_url = json_decode($checkout_session);
 $url = get_object_vars($checkout_session_url);

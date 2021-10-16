@@ -1,13 +1,14 @@
 <?php
 
-/**
- * ajaxCheck.php
+/*
  *
- * @package   OpenEMR
- * @link      https://www.open-emr.org
- * @author    Brady Miller <brady.g.miller@gmail.com>
- * @copyright Copyright (c) 2021 Brady Miller <brady.g.miller@gmail.com>
- * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ * @package     OpenEMR Telehealth Module
+ * @link        https://lifemesh.ai/telehealth/
+ *
+ * @author      Brady Miller <brady.g.miller@gmail.com>
+ * @copyright   Copyright (c) 2021 Lifemesh Corp <telehealth@lifemesh.ai>
+ * @license     GNU General Public License 3
+ *
  */
 
 require_once "../../../../globals.php";
