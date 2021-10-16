@@ -10,7 +10,6 @@
  * @license     GNU General Public License 3
  *
  */
- */
 
 require_once dirname(__FILE__) . "/controller/Container.php";
 require_once dirname(__FILE__) . "/controller/AppointmentSubscriber.php";
